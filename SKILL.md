@@ -1,29 +1,37 @@
 ﻿---
 name: fticr-dom-analysis
-description: Process FT-ICR MS molecular formula tables from CSV or Excel files by computing ΔG0cox, O2-based λ, Van Krevelen category (VK), and (DBE-O)/C. Use when the user wants DOM/FT-ICR MS data processing, multi-sheet Excel handling, thermodynamic outputs, VK biochemical class assignment, or formula-derived table augmentation from element columns or MolForm.
+description: 分析 FT-ICR MS / DOM 分子式表格的分子特性。Use this skill when the user wants molecular property analysis for CSV or Excel formula tables, including ΔG0cox, O2-based λ, Van Krevelen category (VK), (DBE-O)/C, multi-sheet Excel handling, and formula-derived table augmentation from element columns or MolForm.
 ---
 
-# FT-ICR DOM Analysis
+# FT-ICR 分子特性分析
 
 ## Overview
 
-Use this skill to process FT-ICR MS molecular formula tables and append four analysis columns: `ΔG0cox`, `λ`, `VK`, and `(DBE-O)/C`.
+Use this skill for FT-ICR MS / DOM molecular property analysis. It processes molecular formula tables and appends four analysis columns: `ΔG0cox`, `λ`, `VK`, and `(DBE-O)/C`.
 
-The bundled script supports `.csv`, `.xlsx`, and `.xls` input/output. For Excel workbooks, no `--sheet` means process all worksheets and preserve sheet names; specifying `--sheet` processes only that sheet.
+功能包括：
+
+- 读取 `.csv`、`.xlsx`、`.xls` 分子式表格。
+- Excel 不指定 `--sheet` 时自动处理所有工作表，并保留原 sheet 名。
+- 从已有元素列或 `MolForm` 解析 `C`, `H`, `N`, `O`, `S`, `P`, `Cl`, `Br`。
+- 计算 NOSC-derived `ΔG0cox`。
+- 计算 O2-based substrate-explicit model 的 `λ`，含卤素或不适用行留空。
+- 按 Van Krevelen 条件添加 `VK` 分子类别。
+- 计算 `(DBE-O)/C`。
 
 ## Workflow
 
 1. Locate the input table and choose an output path.
-2. Run `scripts/calculate_deltaG_lambda.py` with the Codex bundled Python when available, because it includes spreadsheet dependencies.
+2. Run `scripts/molecular_property_analysis.py` with the Codex bundled Python when available, because it includes spreadsheet dependencies.
 3. Verify the output keeps all original columns and appends exactly `ΔG0cox`, `λ`, `VK`, and `(DBE-O)/C`.
 4. For Excel workbooks, confirm all expected worksheets are present.
 
 ## Command
 
 ```bash
-python scripts/calculate_deltaG_lambda.py input.xlsx output.xlsx
-python scripts/calculate_deltaG_lambda.py input.xlsx output.xlsx --sheet Sheet1
-python scripts/calculate_deltaG_lambda.py input.csv output.csv
+python scripts/molecular_property_analysis.py input.xlsx output.xlsx
+python scripts/molecular_property_analysis.py input.xlsx output.xlsx --sheet Sheet1
+python scripts/molecular_property_analysis.py input.csv output.csv
 ```
 
 ## Element Handling
@@ -43,13 +51,13 @@ python scripts/calculate_deltaG_lambda.py input.csv output.csv
 Assign `VK` using the first matching rule below; rows that do not match any rule are `Other`.
 
 ```text
-Lipids:        0 <= O/C < 0.3    and 1.5 <= H/C <= 2.0
-Aliphatic:     0.3 <= O/C < 0.67 and 1.5 <= H/C <= 2.2
-Lignin:        0.1 < O/C <= 0.67 and 0.7 <= H/C < 1.5
+Lipids:        0 <= O/C < 0.3     and 1.5 <= H/C <= 2.0
+Aliphatic:     0.3 <= O/C < 0.67  and 1.5 <= H/C <= 2.2
+Lignin:        0.1 < O/C <= 0.67  and 0.7 <= H/C < 1.5
 Carbohydrates: 0.67 <= O/C <= 1.2 and 1.5 <= H/C <= 2.4
-Unsaturated:   0 <= O/C <= 0.1   and 0.7 <= H/C < 1.5
-Aromatic:      0 <= O/C <= 0.67  and 0.2 <= H/C < 0.7
-Tannin:        0.67 < O/C <= 1.0 and 0.6 <= H/C < 1.5
+Unsaturated:   0 <= O/C <= 0.1    and 0.7 <= H/C < 1.5
+Aromatic:      0 <= O/C <= 0.67   and 0.2 <= H/C < 0.7
+Tannin:        0.67 < O/C <= 1.0  and 0.6 <= H/C < 1.5
 Other:         all unmatched rows
 ```
 
