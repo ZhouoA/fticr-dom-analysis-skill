@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "FT-ICR DOM Analysis"
+  short_description: "Compute ΔG0cox, λ, VK class, and (DBE-O)/C."
+  default_prompt: "Use $fticr-dom-analysis to process this FT-ICR MS table and add ΔG0cox, λ, VK, and (DBE-O)/C."
