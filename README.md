@@ -80,3 +80,19 @@ pip install pandas openpyxl
 ```
 
 Codex 内置的 spreadsheet Python runtime 通常已经包含这些依赖。
+ 
+## PMD network analysis
+
+After generating the molecular-property workbooks, run:
+
+```bash
+python scripts/molecular_PMD_analysis.py processed
+```
+
+The input directory should contain `network_edge*.csv`, `reaction_delta.csv`,
+and analysis workbooks named like `生物段MLA_fticr_dom_analysis.xlsx`.
+
+This workflow creates Source and Target row-preserving match tables, then writes
+VK and Group reaction statistics. Count columns are grouped together, RI-sum
+columns are multiplied by 100 and named `RI_sum（%）`, Dataset sum rows and
+reaction-group sum rows are added, and all `_sum` rows are bolded.

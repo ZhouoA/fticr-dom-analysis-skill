@@ -34,6 +34,35 @@ python scripts/molecular_property_analysis.py input.xlsx output.xlsx --sheet She
 python scripts/molecular_property_analysis.py input.csv output.csv
 ```
 
+## PMD Network Workflow
+
+Use `scripts/molecular_PMD_analysis.py` after molecular-property workbooks have
+already been generated. The input directory should contain:
+
+- `network_edge*.csv` files with `Source`, `Target`, and `Reaction` columns.
+- `reaction_delta.csv` with a `reaction` column, used as the reaction order.
+- Matching analysis workbooks named `生物段{tag}_fticr_dom_analysis.xlsx`,
+  where `{tag}` matches the suffix of `network_edge{tag}.csv`.
+
+Command:
+
+```bash
+python scripts/molecular_PMD_analysis.py processed
+```
+
+Outputs:
+
+- `source_reaction_matches/source_reaction_{tag}_matched_analysis.xlsx`
+- `target_reaction_matches/target_reaction_{tag}_matched_analysis.xlsx`
+- `source_reaction_matches/source_reaction_VK_Group_statistics.xlsx`
+- `target_reaction_matches/target_reaction_VK_Group_statistics.xlsx`
+
+The Source/Target match tables preserve every network edge row in order and do
+not deduplicate formulas. The statistics workbooks include `VK_stats` and
+`Group_stats`, count columns first, RI-sum percentage columns second, per-Dataset
+sum rows, and reaction-group sum rows such as `1-CH_sum`, `1+CHO_sum`,
+`1-CHON_sum`, and `1+CHOS_sum`. Sum rows are bolded.
+
 ## Element Handling
 
 - Prefer existing element columns: `C`, `H`, `N`, `O`, `S`, `P`, `Cl`, `Br`.
