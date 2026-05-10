@@ -196,6 +196,18 @@ def append_reaction_group_and_dataset_sums(frame: pd.DataFrame) -> pd.DataFrame:
     return pd.concat(output_parts, ignore_index=True)
 
 
+def reorder_statistics_columns(frame: pd.DataFrame) -> pd.DataFrame:
+    id_columns = [column for column in ["Dataset", "Reaction"] if column in frame.columns]
+    count_columns = [column for column in frame.columns if str(column).endswith("_count")]
+    ri_columns = [column for column in frame.columns if RI_PERCENT_SUFFIX in str(column)]
+    remaining = [
+        column
+        for column in frame.columns
+        if column not in id_columns and column not in count_columns and column not in ri_columns
+    ]
+    return frame[id_columns + count_columns + ri_columns + remaining]
+
+
 def numeric_statistics_columns(frame: pd.DataFrame) -> list[str]:
     return [
         column
@@ -256,8 +268,12 @@ def write_statistics(
         vk_stats.append(summarize_category(all_matched, reaction_order, "VK", VK_CATEGORIES, "ALL"))
         group_stats.append(summarize_category(all_matched, reaction_order, "Group", GROUP_CATEGORIES, "ALL"))
 
-    vk_output = append_reaction_group_and_dataset_sums(pd.concat(vk_stats, ignore_index=True))
-    group_output = append_reaction_group_and_dataset_sums(pd.concat(group_stats, ignore_index=True))
+    vk_output = reorder_statistics_columns(
+        append_reaction_group_and_dataset_sums(pd.concat(vk_stats, ignore_index=True))
+    )
+    group_output = reorder_statistics_columns(
+        append_reaction_group_and_dataset_sums(pd.concat(group_stats, ignore_index=True))
+    )
 
     with pd.ExcelWriter(path) as writer:
         vk_output.to_excel(writer, index=False, sheet_name="VK_stats")
@@ -268,7 +284,7 @@ def write_statistics(
 def write_dataset_sum_percent_statistics(input_path: Path, output_path: Path) -> None:
     sheets = pd.read_excel(input_path, sheet_name=None)
     converted = {
-        sheet_name: convert_to_dataset_sum_percent(frame)
+        sheet_name: reorder_statistics_columns(convert_to_dataset_sum_percent(frame))
         for sheet_name, frame in sheets.items()
     }
     with pd.ExcelWriter(output_path) as writer:
