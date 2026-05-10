@@ -25,8 +25,9 @@ VK_CATEGORIES = [
     "Unsaturated",
     "Aromatic",
     "Tannin",
+    "Other",
 ]
-GROUP_CATEGORIES = ["CHO", "CHON", "CHONS", "CHOS"]
+GROUP_CATEGORIES = ["CHO", "CHON", "CHONS", "CHOS", "Other"]
 REACTION_GROUPS = {
     "1-CH": ["1-C3H6", "1-C3H4", "1-C2H4", "1-C2H2", "1-CH2", "1-C", "1-H2"],
     "1+CH": ["1+H2"],
@@ -150,6 +151,11 @@ def summarize_category(
 ) -> pd.DataFrame:
     working = frame.copy()
     working["RI"] = pd.to_numeric(working.get("RI"), errors="coerce").fillna(0.0)
+    if category_column == "Group":
+        working[category_column] = working[category_column].where(
+            working[category_column].isin(["CHO", "CHON", "CHONS", "CHOS"]),
+            "Other",
+        )
     rows: list[dict[str, object]] = []
 
     for reaction in reaction_order:

@@ -63,9 +63,10 @@ The Source/Target match tables preserve every network edge row in order and do
 not deduplicate formulas. The statistics workbooks include `VK_stats` and
 `Group_stats`, count columns first, RI-sum percentage columns second, per-Dataset
 sum rows, and reaction-group sum rows such as `1-CH_sum`, `1+CHO_sum`,
-`1-CHON_sum`, and `1+CHOS_sum`. Sum rows are bolded. The percent-of-Dataset
-statistics divide each numeric value by the corresponding Dataset sum-row value
-and multiply by 100.
+`1-CHON_sum`, and `1+CHOS_sum`. `VK_stats` includes `Other`; `Group_stats`
+counts non-`CHO`/`CHON`/`CHONS`/`CHOS` formulas as `Other`. Sum rows are bolded.
+The percent-of-Dataset statistics divide each numeric value by the corresponding
+Dataset sum-row value and multiply by 100.
 
 ## Element Handling
 
