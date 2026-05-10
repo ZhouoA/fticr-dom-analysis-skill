@@ -100,3 +100,17 @@ includes `Other`; `Group_stats` counts non-`CHO`/`CHON`/`CHONS`/`CHOS` formulas
 as `Other`. It also creates `*_percent_of_dataset_sum.xlsx` workbooks, where
 each numeric value is divided by the matching Dataset `_sum` row value and
 multiplied by 100.
+
+## Gephi analysis
+
+After PMD matching, run:
+
+```bash
+python scripts/gephi_analysis.py processed --clean
+```
+
+The script writes Gephi-ready files to `processed/gephi`: VK node tables,
+Group node tables, and labeled edge tables. Node tables contain `ID`, `Label`,
+`type`, and `color`; edge tables keep `Source`, `Target`, and `Reaction`, then
+add `label`, `label2`, and `color`. The workflow includes the local color
+palettes for VK classes, Group classes, and reaction-label classes.

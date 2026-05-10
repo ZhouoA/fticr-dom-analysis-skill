@@ -68,6 +68,27 @@ counts non-`CHO`/`CHON`/`CHONS`/`CHOS` formulas as `Other`. Sum rows are bolded.
 The percent-of-Dataset statistics divide each numeric value by the corresponding
 Dataset sum-row value and multiply by 100.
 
+## Gephi Workflow
+
+Use `scripts/gephi_analysis.py` after PMD matching has produced
+`network_formula_matches/network_unique_molecules_*_matched_analysis.xlsx`.
+The same input directory should also contain `network_edge*.csv`.
+
+Command:
+
+```bash
+python scripts/gephi_analysis.py processed --clean
+```
+
+Outputs are written to `processed/gephi` by default:
+
+- `nodes_{tag}_VK.xlsx`: `ID`, `Label`, `type`, and `color` from `MolForm` and `VK`.
+- `nodes_{tag}_Group.xlsx`: `ID`, `Label`, `type`, and `color` from `MolForm` and `Group`; non-`CHO`/`CHON`/`CHONS`/`CHOS` values become `Others`.
+- `network_edge{tag}_labeled.xlsx`: original `Source`, `Target`, `Reaction` plus `label`, `label2`, and `color` reaction-group columns.
+
+The script applies the Gephi color palettes used in the local workflow for VK,
+Group, and reaction labels.
+
 ## Element Handling
 
 - Prefer existing element columns: `C`, `H`, `N`, `O`, `S`, `P`, `Cl`, `Br`.
