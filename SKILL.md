@@ -56,12 +56,16 @@ Outputs:
 - `target_reaction_matches/target_reaction_{tag}_matched_analysis.xlsx`
 - `source_reaction_matches/source_reaction_VK_Group_statistics.xlsx`
 - `target_reaction_matches/target_reaction_VK_Group_statistics.xlsx`
+- `source_reaction_matches/source_reaction_VK_Group_statistics_percent_of_dataset_sum.xlsx`
+- `target_reaction_matches/target_reaction_VK_Group_statistics_percent_of_dataset_sum.xlsx`
 
 The Source/Target match tables preserve every network edge row in order and do
 not deduplicate formulas. The statistics workbooks include `VK_stats` and
 `Group_stats`, count columns first, RI-sum percentage columns second, per-Dataset
 sum rows, and reaction-group sum rows such as `1-CH_sum`, `1+CHO_sum`,
-`1-CHON_sum`, and `1+CHOS_sum`. Sum rows are bolded.
+`1-CHON_sum`, and `1+CHOS_sum`. Sum rows are bolded. The percent-of-Dataset
+statistics divide each numeric value by the corresponding Dataset sum-row value
+and multiply by 100.
 
 ## Element Handling
 

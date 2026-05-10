@@ -95,4 +95,6 @@ and analysis workbooks named like `生物段MLA_fticr_dom_analysis.xlsx`.
 This workflow creates Source and Target row-preserving match tables, then writes
 VK and Group reaction statistics. Count columns are grouped together, RI-sum
 columns are multiplied by 100 and named `RI_sum（%）`, Dataset sum rows and
-reaction-group sum rows are added, and all `_sum` rows are bolded.
+reaction-group sum rows are added, and all `_sum` rows are bolded. It also
+creates `*_percent_of_dataset_sum.xlsx` workbooks, where each numeric value is
+divided by the matching Dataset `_sum` row value and multiplied by 100.

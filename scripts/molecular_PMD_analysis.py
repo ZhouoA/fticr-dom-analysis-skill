@@ -37,6 +37,8 @@ REACTION_GROUPS = {
     "1-CHOS": ["1-SO2", "1-SO3"],
     "1+CHOS": ["1+SO3"],
 }
+RI_PERCENT_SUFFIX = "RI_sum\uFF08%\uFF09"
+DEFAULT_ANALYSIS_PATTERN = "\u751f\u7269\u6bb5{tag}_fticr_dom_analysis.xlsx"
 
 
 def parse_args() -> argparse.Namespace:
@@ -62,7 +64,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--analysis-pattern",
-        default="生物段{tag}_fticr_dom_analysis.xlsx",
+        default=DEFAULT_ANALYSIS_PATTERN,
         help="Analysis workbook pattern where {tag} comes from network_edge{tag}.csv.",
     )
     parser.add_argument(
@@ -156,17 +158,13 @@ def summarize_category(
         for category in categories:
             category_subset = subset[subset[category_column] == category]
             row[f"{category}_count"] = int(len(category_subset))
-            row[f"{category}_RI_sum（%）"] = float(category_subset["RI"].sum() * 100)
+            row[f"{category}_{RI_PERCENT_SUFFIX}"] = float(category_subset["RI"].sum() * 100)
         rows.append(row)
     return pd.DataFrame(rows)
 
 
 def append_reaction_group_and_dataset_sums(frame: pd.DataFrame) -> pd.DataFrame:
-    numeric_columns = [
-        column
-        for column in frame.columns
-        if str(column).endswith("_count") or str(column).endswith("RI_sum（%）")
-    ]
+    numeric_columns = numeric_statistics_columns(frame)
     output_parts: list[pd.DataFrame] = []
 
     for dataset in frame["Dataset"].drop_duplicates().tolist():
@@ -190,6 +188,48 @@ def append_reaction_group_and_dataset_sums(frame: pd.DataFrame) -> pd.DataFrame:
         output_parts.append(pd.DataFrame([dataset_sum], columns=frame.columns))
 
     return pd.concat(output_parts, ignore_index=True)
+
+
+def numeric_statistics_columns(frame: pd.DataFrame) -> list[str]:
+    return [
+        column
+        for column in frame.columns
+        if str(column).endswith("_count") or RI_PERCENT_SUFFIX in str(column)
+    ]
+
+
+def base_dataset_name(dataset: object) -> str:
+    text = str(dataset)
+    return text[:-4] if text.endswith("_sum") else text
+
+
+def convert_to_dataset_sum_percent(frame: pd.DataFrame) -> pd.DataFrame:
+    if "Dataset" not in frame.columns or "Reaction" not in frame.columns:
+        return frame
+
+    output = frame.copy()
+    numeric_columns = numeric_statistics_columns(output)
+    for column in numeric_columns:
+        output[column] = pd.to_numeric(output[column], errors="coerce").astype("float64")
+
+    dataset_bases = output["Dataset"].astype(str).map(base_dataset_name).drop_duplicates()
+    for dataset in dataset_bases:
+        sum_mask = output["Dataset"].astype(str).eq(f"{dataset}_sum")
+        if not sum_mask.any():
+            continue
+
+        denominator = pd.to_numeric(output.loc[sum_mask, numeric_columns].iloc[0], errors="coerce")
+        dataset_mask = output["Dataset"].astype(str).map(base_dataset_name).eq(dataset)
+
+        for column in numeric_columns:
+            denom = denominator[column]
+            values = pd.to_numeric(output.loc[dataset_mask, column], errors="coerce")
+            if pd.isna(denom) or denom == 0:
+                output.loc[dataset_mask, column] = pd.NA
+            else:
+                output.loc[dataset_mask, column] = values / denom * 100
+
+    return output
 
 
 def write_statistics(
@@ -217,6 +257,18 @@ def write_statistics(
         vk_output.to_excel(writer, index=False, sheet_name="VK_stats")
         group_output.to_excel(writer, index=False, sheet_name="Group_stats")
     bold_sum_rows(path)
+
+
+def write_dataset_sum_percent_statistics(input_path: Path, output_path: Path) -> None:
+    sheets = pd.read_excel(input_path, sheet_name=None)
+    converted = {
+        sheet_name: convert_to_dataset_sum_percent(frame)
+        for sheet_name, frame in sheets.items()
+    }
+    with pd.ExcelWriter(output_path) as writer:
+        for sheet_name, frame in converted.items():
+            frame.to_excel(writer, index=False, sheet_name=sheet_name)
+    bold_sum_rows(output_path)
 
 
 def bold_sum_rows(path: Path) -> None:
@@ -295,7 +347,19 @@ def run_analysis(args: argparse.Namespace) -> list[dict[str, object]]:
     write_statistics(source_stats, source_frames, reaction_order, args.include_all)
     write_statistics(target_stats, target_frames, reaction_order, args.include_all)
 
-    summary.append({"source_statistics": str(source_stats), "target_statistics": str(target_stats)})
+    source_percent_stats = source_dir / "source_reaction_VK_Group_statistics_percent_of_dataset_sum.xlsx"
+    target_percent_stats = target_dir / "target_reaction_VK_Group_statistics_percent_of_dataset_sum.xlsx"
+    write_dataset_sum_percent_statistics(source_stats, source_percent_stats)
+    write_dataset_sum_percent_statistics(target_stats, target_percent_stats)
+
+    summary.append(
+        {
+            "source_statistics": str(source_stats),
+            "target_statistics": str(target_stats),
+            "source_percent_statistics": str(source_percent_stats),
+            "target_percent_statistics": str(target_percent_stats),
+        }
+    )
     summary_path = output_dir / "molecular_PMD_analysis_summary.json"
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     return summary
