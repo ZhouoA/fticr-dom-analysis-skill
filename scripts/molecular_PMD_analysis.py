@@ -29,14 +29,13 @@ VK_CATEGORIES = [
 ]
 GROUP_CATEGORIES = ["CHO", "CHON", "CHONS", "CHOS", "Other"]
 REACTION_GROUPS = {
-    "1-CH": ["1-C3H6", "1-C3H4", "1-C2H4", "1-C2H2", "1-CH2", "1-C", "1-H2"],
-    "1+CH": ["1+H2"],
-    "1-CHO": ["1-CO", "1-CO2", "1-C2H2O2", "1-CH4O", "1-C6H8O6"],
-    "1+CHO": ["1+C6H8O6", "1+C2H2O", "1+O", "1-H2+O", "1+H2O", "1+O2", "1-H2+O2"],
-    "1-CHON": ["1-NH", "1-NH+O", "1-C2H5N", "1-CHON"],
-    "1+CHON": ["1+NH", "1-O+NH", "1-O+NH3", "1-H+NO", "1-H+NO2"],
-    "1-CHOS": ["1-SO2", "1-SO3"],
-    "1+CHOS": ["1+SO3"],
+    "Dealkylation": ["1-C3H6", "1-C3H4", "1-C2H4", "1-C2H2", "1-CH2", "1-C2H2O2"],
+    "(De)hydrogenation": ["1-H2", "1+H2"],
+    "Oxygen addition": ["1+O", "1-H2+O", "1+H2O", "1+O2", "1-H2+O2"],
+    "Carboxyl transformation": ["1-CO", "1-CO2"],
+    "Nitrogen-related": ["1-NH", "1-NH+O", "1-C2H5N", "1-CHON", "1+NH", "1-O+NH", "1-O+NH3", "1-H+NO", "1-H+NO2"],
+    "Sulfur-related": ["1-SO2", "1-SO3", "1+SO3"],
+    "Other": ["1-C", "1-CH4O", "1-C6H8O6", "1+C6H8O6", "1+C2H2O"],
 }
 RI_PERCENT_SUFFIX = "RI_sum\uFF08%\uFF09"
 DEFAULT_ANALYSIS_PATTERN = "\u751f\u7269\u6bb5{tag}_fticr_dom_analysis.xlsx"
@@ -216,6 +215,14 @@ def numeric_statistics_columns(frame: pd.DataFrame) -> list[str]:
     ]
 
 
+def count_statistics_columns(frame: pd.DataFrame) -> list[str]:
+    return [column for column in frame.columns if str(column).endswith("_count")]
+
+
+def ri_statistics_columns(frame: pd.DataFrame) -> list[str]:
+    return [column for column in frame.columns if RI_PERCENT_SUFFIX in str(column)]
+
+
 def base_dataset_name(dataset: object) -> str:
     text = str(dataset)
     return text[:-4] if text.endswith("_sum") else text
@@ -226,7 +233,9 @@ def convert_to_dataset_sum_percent(frame: pd.DataFrame) -> pd.DataFrame:
         return frame
 
     output = frame.copy()
-    numeric_columns = numeric_statistics_columns(output)
+    count_columns = count_statistics_columns(output)
+    ri_columns = ri_statistics_columns(output)
+    numeric_columns = count_columns + ri_columns
     for column in numeric_columns:
         output[column] = pd.to_numeric(output[column], errors="coerce").astype("float64")
 
@@ -236,16 +245,24 @@ def convert_to_dataset_sum_percent(frame: pd.DataFrame) -> pd.DataFrame:
         if not sum_mask.any():
             continue
 
-        denominator = pd.to_numeric(output.loc[sum_mask, numeric_columns].iloc[0], errors="coerce")
+        sum_row = output.loc[sum_mask].iloc[0]
+        count_denominator = pd.to_numeric(sum_row[count_columns], errors="coerce").sum()
+        ri_denominator = pd.to_numeric(sum_row[ri_columns], errors="coerce").sum()
         dataset_mask = output["Dataset"].astype(str).map(base_dataset_name).eq(dataset)
 
-        for column in numeric_columns:
-            denom = denominator[column]
+        for column in count_columns:
             values = pd.to_numeric(output.loc[dataset_mask, column], errors="coerce")
-            if pd.isna(denom) or denom == 0:
+            if pd.isna(count_denominator) or count_denominator == 0:
                 output.loc[dataset_mask, column] = pd.NA
             else:
-                output.loc[dataset_mask, column] = values / denom * 100
+                output.loc[dataset_mask, column] = values / count_denominator * 100
+
+        for column in ri_columns:
+            values = pd.to_numeric(output.loc[dataset_mask, column], errors="coerce")
+            if pd.isna(ri_denominator) or ri_denominator == 0:
+                output.loc[dataset_mask, column] = pd.NA
+            else:
+                output.loc[dataset_mask, column] = values / ri_denominator * 100
 
     return output
 
