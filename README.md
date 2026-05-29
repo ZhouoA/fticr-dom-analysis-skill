@@ -121,6 +121,20 @@ Rscript skills/vk-figure/scripts/vk_figure_workflow.R ^
 - 点层栅格化为 600 dpi，文字、坐标轴、虚线、边框和图例仍保持矢量。
 - 输出文件一定是 Illustrator 友好版，避免 Adobe Illustrator 打开时特别卡。
 
+### VK-figure 最终版字号
+
+当前最终版图的推荐字号如下，下次复现或微调时优先按这个规格检查：
+
+```text
+坐标标题 O/C、H/C：18 pt
+坐标刻度数字：14 pt
+图中样品名：16 pt
+右下角 n= 数量：16 pt
+图例刻度数字：14 pt
+图例右侧 RI (%) 和 ×10^-3：14 pt
+左侧 a/b 面板标注：27 pt
+```
+
 ### VK-figure 输出文件
 
 默认输出目录：
