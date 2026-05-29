@@ -1,0 +1,4 @@
+interface:
+  display_name: "VK-figure"
+  short_description: "Generate RI-binned Van Krevelen figures with AI-friendly exports."
+  default_prompt: "Use $vk-figure to check RI bins and draw an Illustrator-friendly Van Krevelen figure from this CSV folder."
