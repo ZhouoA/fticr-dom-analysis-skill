@@ -1,37 +1,15 @@
-# FT-ICR 分子特性分析 Skill
+# FT-ICR DOM Analysis Skills
 
-这是一个用于处理 FT-ICR MS / DOM 分子式表格的 Codex skill。它可以读取 `.csv`、`.xlsx`、`.xls` 文件，保留原始表格所有列，并在末尾追加分子特性分析结果。
+这个仓库保存用于 FT-ICR MS / DOM 数据处理的 Codex skills。当前包含两个主要能力：
 
-## Skill 名称
+1. `$fticr-dom-analysis`：给分子式表格补充分子性质、VK 分类、PMD/Gephi 分析文件。
+2. `$vk-figure`：从含 `O/C`、`H/C`、`RI` 的样品 CSV 文件夹生成论文级 Van Krevelen RI 合并图。
 
-在 Codex 中调用：
+## 1. 分子性质分析：`$fticr-dom-analysis`
 
-```text
-$fticr-dom-analysis
-```
+用途：处理 FT-ICR MS / DOM 分子式表格，保留原始列，并追加分子性质分析结果。
 
-示例：
-
-```text
-用 $fticr-dom-analysis 处理这个 FT-ICR MS 表格
-```
-
-## 主要功能
-
-- 支持 CSV 和 Excel 表格。
-- Excel 不指定 sheet 时，自动处理所有工作表，并保留原 sheet 名。
-- 优先读取元素列：`C`, `H`, `N`, `O`, `S`, `P`, `Cl`, `Br`。
-- 如果没有元素列，则从 `MolForm` 解析分子式组成。
-- 计算 `ΔG0cox`。
-- 计算 O2-based substrate-explicit model 的 `λ`。
-- 对含 `Cl` 或 `Br` 的卤代分子，`ΔG0cox` 正常计算，`λ` 留空。
-- 对 `C <= 0` 或模型不适用的行，相关结果留空。
-- 按 Van Krevelen 条件生成 `VK` 分子类别。
-- 计算 `(DBE-O)/C`。
-
-## 输出列
-
-输出表格保留原始所有列，并只追加以下列：
+主要输出列：
 
 ```text
 ΔG0cox
@@ -40,77 +18,142 @@ VK
 (DBE-O)/C
 ```
 
-## 直接运行脚本
+典型调用：
 
-脚本位于：
+```text
+用 $fticr-dom-analysis 处理这个 FT-ICR MS 表格
+```
+
+脚本位置：
 
 ```text
 scripts/molecular_property_analysis.py
+scripts/molecular_PMD_analysis.py
+scripts/gephi_analysis.py
 ```
 
 命令示例：
 
 ```bash
 python scripts/molecular_property_analysis.py input.xlsx output.xlsx
-python scripts/molecular_property_analysis.py input.xlsx output.xlsx --sheet Sheet1
 python scripts/molecular_property_analysis.py input.csv output.csv
-```
-
-## VK 分类规则
-
-按以下条件顺序匹配，未匹配的归为 `Other`：
-
-```text
-Lipids:        0 <= O/C < 0.3     and 1.5 <= H/C <= 2.0
-Aliphatic:     0.3 <= O/C < 0.67  and 1.5 <= H/C <= 2.2
-Lignin:        0.1 < O/C <= 0.67  and 0.7 <= H/C < 1.5
-Carbohydrates: 0.67 <= O/C <= 1.2 and 1.5 <= H/C <= 2.4
-Unsaturated:   0 <= O/C <= 0.1    and 0.7 <= H/C < 1.5
-Aromatic:      0 <= O/C <= 0.67   and 0.2 <= H/C < 0.7
-Tannin:        0.67 < O/C <= 1.0  and 0.6 <= H/C < 1.5
-Other:         all unmatched rows
-```
-
-## 依赖
-
-需要 Python 以及：
-
-```bash
-pip install pandas openpyxl
-```
-
-Codex 内置的 spreadsheet Python runtime 通常已经包含这些依赖。
- 
-## PMD network analysis
-
-After generating the molecular-property workbooks, run:
-
-```bash
 python scripts/molecular_PMD_analysis.py processed
-```
-
-The input directory should contain `network_edge*.csv`, `reaction_delta.csv`,
-and analysis workbooks named like `生物段MLA_fticr_dom_analysis.xlsx`.
-
-This workflow creates Source and Target row-preserving match tables, then writes
-VK and Group reaction statistics. Count columns are grouped together, RI-sum
-columns are multiplied by 100 and named `RI_sum（%）`, Dataset sum rows and
-reaction-group sum rows are added, and all `_sum` rows are bolded. `VK_stats`
-includes `Other`; `Group_stats` counts non-`CHO`/`CHON`/`CHONS`/`CHOS` formulas
-as `Other`. It also creates `*_percent_of_dataset_sum.xlsx` workbooks, where
-each numeric value is divided by the matching Dataset `_sum` row value and
-multiplied by 100.
-
-## Gephi analysis
-
-After PMD matching, run:
-
-```bash
 python scripts/gephi_analysis.py processed --clean
 ```
 
-The script writes Gephi-ready files to `processed/gephi`: VK node tables,
-Group node tables, and labeled edge tables. Node tables contain `ID`, `Label`,
-`type`, and `color`; edge tables keep `Source`, `Target`, and `Reaction`, then
-add `label`, `label2`, and `color`. The workflow includes the local color
-palettes for VK classes, Group classes, and reaction-label classes.
+## 2. VK 绘图：`$vk-figure`
+
+用途：当你有一批类似 `L10consensus_vk.csv` 这样的样品文件，每个文件中包含：
+
+```text
+O/C
+H/C
+RI
+```
+
+就可以调用 `$vk-figure` 自动完成 RI 分档检查、颜色分箱、VK 区域虚线、横向 RI 图例、合并图排版，并输出 **Adobe Illustrator 友好版** 文件。
+
+典型调用：
+
+```text
+用 $vk-figure 读取这个文件夹，先检查 RI 分布并推荐分箱，然后按我选择的分箱画 VK 合并图
+```
+
+### 关键工作流
+
+第一步：先检查 RI 分布，不直接画图。
+
+```bash
+Rscript skills/vk-figure/scripts/vk_figure_workflow.R --input 输入文件夹 --mode check
+```
+
+这一步会输出：
+
+```text
+输入文件夹/vk_figure_outputs/RI_classification_check/RI_quantiles_by_sample.csv
+输入文件夹/vk_figure_outputs/RI_classification_check/candidate_bin_counts_by_sample.csv
+输入文件夹/vk_figure_outputs/RI_classification_check/candidate_bin_counts_overall.csv
+```
+
+看这些表后，选择合适的 RI 分箱。默认候选包括：
+
+```text
+raw8              直接用原始 RI，8 档，适合当前 VK 图
+raw6              直接用原始 RI，6 档，图例更简洁
+original9         直接用原始 RI 套旧 9 档，容易过度集中在最低档
+RIx10_original9   先 RI×10，再套旧 9 档
+```
+
+第二步：按选择的分箱画图。
+
+```bash
+Rscript skills/vk-figure/scripts/vk_figure_workflow.R --input 输入文件夹 --mode plot --scheme raw8
+```
+
+如果你想指定样品顺序：
+
+```bash
+Rscript skills/vk-figure/scripts/vk_figure_workflow.R --input 输入文件夹 --mode plot --scheme raw8 --order L10consensus_vk,L114consensus_vk,L130consensus_vk,L138consensus_vk,L20consensus_vk,L22consensus_vk,L25consensus_vk,L28consensus_vk
+```
+
+如果你想使用自定义 breaks 和 labels：
+
+```bash
+Rscript skills/vk-figure/scripts/vk_figure_workflow.R ^
+  --input 输入文件夹 ^
+  --mode plot ^
+  --breaks "-Inf,0.00002,0.00004,0.00006,0.00010,0.00020,0.00050,0.001,Inf" ^
+  --labels "<0.00002|[0.00002,0.00004)|[0.00004,0.00006)|[0.00006,0.00010)|[0.00010,0.00020)|[0.00020,0.00050)|[0.00050,0.001)|>=0.001"
+```
+
+注意：`labels` 之间用 `|` 分隔，因为区间标签里面本身有逗号。
+
+### VK-figure 的绘图规范
+
+`$vk-figure` 默认会按这次最终版的风格输出：
+
+- 样品名直接使用表格文件名，不自动做 ML/OL 重命名。
+- 根据 `RI` 做颜色分档，并先输出分箱统计供你选择。
+- 使用 Nature 风格 RI 配色。
+- 使用紧凑横向 RI 色带图例，放在合并图上方。
+- 每个小图右下角写 `n=` 数量。
+- 每行第一个面板外侧添加 `a`、`b` 等面板标注。
+- 点层栅格化为 600 dpi，文字、坐标轴、虚线、边框和图例仍保持矢量。
+- 输出文件一定是 Illustrator 友好版，避免 Adobe Illustrator 打开时特别卡。
+
+### VK-figure 输出文件
+
+默认输出目录：
+
+```text
+输入文件夹/vk_figure_outputs
+```
+
+主要文件：
+
+```text
+combined_vk_RI_AI_friendly.pdf
+combined_vk_RI_AI_friendly.svg
+combined_vk_RI_AI_friendly.png
+combined_vk_RI_AI_friendly.tiff
+all_samples_RI_bin_counts.csv
+每个样品_RI_bin_counts.csv
+```
+
+建议在 Adobe Illustrator 中优先打开：
+
+```text
+combined_vk_RI_AI_friendly.pdf
+```
+
+如果仍然卡，可以打开 SVG，或者用 PNG/TIFF 作为排版参考。
+
+## R 依赖
+
+`$vk-figure` 需要以下 R 包：
+
+```r
+install.packages(c("ggplot2", "patchwork", "ragg", "svglite", "ggrastr"))
+```
+
+其中 `ggrastr` 用于只栅格化散点层，这是 Illustrator 友好版的关键。
