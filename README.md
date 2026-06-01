@@ -1,9 +1,10 @@
 # FT-ICR DOM Analysis Skills
 
-这个仓库保存用于 FT-ICR MS / DOM 数据处理的 Codex skills。当前包含两个主要能力：
+这个仓库保存用于 FT-ICR MS / DOM 数据处理的 Codex skills。当前包含三个主要能力：
 
 1. `$fticr-dom-analysis`：给分子式表格补充分子性质、VK 分类、PMD/Gephi 分析文件。
 2. `$vk-figure`：从含 `O/C`、`H/C`、`RI` 的样品 CSV 文件夹生成论文级 Van Krevelen RI 合并图。
+3. `$group-vk-figure`：从 Group/VK 分类汇总表生成并排的堆叠柱状图，统计平行样品平均 RI (%)。
 
 ## 1. 分子性质分析：`$fticr-dom-analysis`
 
@@ -162,12 +163,119 @@ combined_vk_RI_AI_friendly.pdf
 
 如果仍然卡，可以打开 SVG，或者用 PNG/TIFF 作为排版参考。
 
-## R 依赖
+## 3. Group/VK 堆叠柱状图：`$group-vk-figure`
 
-`$vk-figure` 需要以下 R 包：
+用途：当你已经把 DOM 数据按 `Group` 和 `VK` 分类统计好，并得到包含 `Sample`、`Dimension`、`Category`、`RI sum` 的汇总表时，可以调用 `$group-vk-figure` 绘制论文用的两联堆叠柱状图。
 
-```r
-install.packages(c("ggplot2", "patchwork", "ragg", "svglite", "ggrastr"))
+图形结构：
+
+```text
+左图：Group 分类堆叠柱状图
+右图：VK 分类堆叠柱状图
 ```
 
-其中 `ggrastr` 用于只栅格化散点层，这是 Illustrator 友好版的关键。
+三个平行样品会自动取平均，例如：
+
+```text
+ML-0-1、ML-0-2、ML-0-3 取平均后显示为 ML-0
+OL-1-1、OL-1-2、OL-1-3 取平均后显示为 OL-1
+```
+
+典型调用：
+
+```text
+用 $group-vk-figure 读取这个 Group/VK 汇总表，按前面确定的格式画并排堆叠柱状图
+```
+
+命令示例：
+
+```bash
+Rscript skills/group-vk-figure/scripts/group_vk_stacked_figure.R --input-summary 输入文件.xlsx
+```
+
+指定输出目录和文件名前缀：
+
+```bash
+Rscript skills/group-vk-figure/scripts/group_vk_stacked_figure.R ^
+  --input-summary 输入文件.xlsx ^
+  --output-dir 输出文件夹 ^
+  --prefix DOM_Group_VK_ML_OL_stacked
+```
+
+### group-vk-figure 图形规格
+
+```text
+画布宽度：16.93 in
+画布高度：5.64 in
+布局：一排两个图，Group 在左，VK 在右
+Y 轴标题：RI (%)
+Y 轴范围：0-100
+Y 轴刻度：0、25、50、75、100
+坐标标题字号：18 pt，加粗
+坐标刻度数字字号：14 pt
+横坐标样品名称字号：14 pt
+图例文字字号：10 pt
+图例色块：正方形，3.4 mm × 3.4 mm
+柱子宽度：0.68
+面板边框：黑色，0.70 pt
+柱子分段边线：白色，0.18 pt
+```
+
+图上不显示 `Group` 或 `VK` 的面板标题，分类信息只通过各自图例表达。
+
+### Group 图例顺序和配色
+
+```text
+CHO     #5B8DB8
+CHON    #D89070
+CHONS   #78A978
+CHOS    #C6A15B
+Others  #B8B8B8
+```
+
+Group 图例为一排。
+
+### VK 图例顺序和配色
+
+```text
+Lipids                         #7FA6C9
+Aliphatic/proteins             #E2B47A
+Lignin/CRAM-like structures    #8F8CC0
+Carbohydrates                  #86B8B2
+Unsaturated hydrocarbons       #A7C8A2
+Aromatic structures            #C78282
+Tannin                         #B996C6
+Others                         #B7B7B7
+```
+
+VK 图例为两排，文字不换行，图例放在 VK 柱状图上方。
+
+### group-vk-figure 输出文件
+
+默认输出目录：
+
+```text
+输入文件所在目录/Group_VK_RI_stacked_figures
+```
+
+主要文件：
+
+```text
+<prefix>.svg
+<prefix>.pdf
+<prefix>.tiff
+<prefix>.png
+<prefix>_source_data.csv
+```
+
+脚本运行结束会输出 QA 表，每个样品的 Group 和 VK 堆叠总和应接近 100。
+
+## R 依赖
+
+`$vk-figure` 和 `$group-vk-figure` 需要以下 R 包：
+
+```r
+install.packages(c("readxl", "readr", "dplyr", "tidyr", "ggplot2", "patchwork", "ragg", "svglite", "ggrastr"))
+```
+
+其中 `ggrastr` 用于 `$vk-figure` 只栅格化散点层，这是 Illustrator 友好版的关键。

@@ -1,6 +1,6 @@
-# group-VK-figure 中文说明
+# group-vk-figure 中文说明
 
-`group-VK-figure` 为显示名称；在 Codex skill 系统中的可调用名称为 `$group-vk-figure`。它用于把 FT-ICR MS / DOM 数据中已经统计好的 Group 和 VK 分类结果，绘制成论文用的两联堆叠柱状图。图形格式与当前已经确定的版本一致：左边为 Group，右边为 VK，两个图并排放在同一张画布里，图例在各自柱状图上方。
+`group-vk-figure` 用于把 FT-ICR MS / DOM 数据中已经统计好的 Group 和 VK 分类结果，绘制成论文用的两联堆叠柱状图。图形格式与当前已经确定的版本一致：左边为 Group，右边为 VK，两个图并排放在同一张画布里，图例在各自柱状图上方。
 
 ## 输入数据
 
