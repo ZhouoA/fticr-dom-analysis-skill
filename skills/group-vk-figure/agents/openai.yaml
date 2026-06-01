@@ -1,0 +1,4 @@
+interface:
+  display_name: "group-VK-figure"
+  short_description: "Draw paired Group and VK stacked RI (%) bar charts for DOM summaries."
+  default_prompt: "Use $group-vk-figure to draw the paired Group and VK stacked bar figure from this DOM summary table."
