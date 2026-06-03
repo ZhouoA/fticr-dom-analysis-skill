@@ -1,0 +1,4 @@
+interface:
+  display_name: "2-ven-violin"
+  short_description: "Combine Venn, shared VK, and violin panels into one Nature-style figure."
+  default_prompt: "Use $2-ven-violin to combine the Venn diagram, shared VK scatter, and significant molecular-property violin plots into one final figure."

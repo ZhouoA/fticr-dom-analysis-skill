@@ -279,3 +279,105 @@ install.packages(c("readxl", "readr", "dplyr", "tidyr", "ggplot2", "patchwork", 
 ```
 
 其中 `ggrastr` 用于 `$vk-figure` 只栅格化散点层，这是 Illustrator 友好版的关键。
+
+## 4. Venn + Shared VK + Violin 组合图：`$2-ven-violin`
+
+用途：把已经完成的 **Venn diagram**、**shared Formula 的 VK 散点图** 和 **显著分子特性 violin plot** 合并成一张最终论文图。
+
+这个 skill 对应当前最终图结构：
+
+```text
+a  Venn diagram        b  Shared VK scatter
+
+c  MW      d  DBE      e  O/C      f  H/C
+g  N/C     h  S/C      i  AImod    j  NOSC
+```
+
+### 什么时候调用
+
+当你已经完成以下三个步骤后，可以直接调用 `$2-ven-violin`：
+
+1. ML-0 和 OL-0 的 shared/unique Formula Venn 统计；
+2. 5662 个 shared Formula 的 VK 散点图源数据；
+3. ML-0 vs OL-0 分子特性的 Wilcoxon 检验和 RI 加权平均结果。
+
+典型调用方式：
+
+```text
+用 $2-ven-violin 读取这个 01汇总筛选3 文件夹，把 Venn、shared VK 和 violin plots 合并成最终图。
+```
+
+### 输入目录要求
+
+把 `--input` 指向类似 `01汇总筛选3` 的父目录。该目录下需要包含：
+
+```text
+01汇总筛选3/
+  Venn_ML0_OL0/
+    ML0_OL0_venn_counts.csv
+
+  Shared_VK_scatter/
+    Shared_5662_VK_scatter_source_data.csv
+
+  Wilcoxon rank-sum test/
+    ML0_OL0_final_property_values_long_format.csv
+    ML0_OL0_RI_weighted_mean_Wilcoxon_summary.csv
+```
+
+### 运行命令
+
+```bash
+Rscript skills/2-ven-violin/scripts/2_ven_violin_workflow.R --input 输入文件夹
+```
+
+也可以指定输出文件夹、文件名前缀和分辨率：
+
+```bash
+Rscript skills/2-ven-violin/scripts/2_ven_violin_workflow.R ^
+  --input 输入文件夹 ^
+  --output 输出文件夹 ^
+  --prefix ML0_OL0_shared_VK_violin_combined ^
+  --dpi 600
+```
+
+### 最终图设置
+
+当前最终版会按以下规则绘制：
+
+- `a` 图为 ML 和 OL 的 Venn diagram；
+- `b` 图为 5662 个 shared Formula 的 VK 散点图，不考虑 RI 颜色分布；
+- `c-j` 图为显著分子特性的 violin plots；
+- violin 图横坐标只显示 `ML` 和 `OL`，不显示 `ML-0` 和 `OL-0`；
+- violin 图顶部不显示 FDR p 值，而是显示对应 RI 加权平均值，例如 `DBEwa=6.419`、`DBEwa=7.530`；
+- panel label 使用 `a, b, c ... j`，不加括号；
+- `a` 图圆的直径按最终版调到约为 `b` 图纵坐标长度的 4/5；
+- `b` 图的纵坐标与下面 `e` 图所在列对齐；
+- 输出 PDF、PNG 和 TIFF，其中 PNG/TIFF 为 600 dpi。
+
+### 输出文件
+
+默认输出目录：
+
+```text
+输入文件夹/Combined_shared_VK_violin_figure
+```
+
+主要输出文件：
+
+```text
+ML0_OL0_shared_VK_violin_combined.pdf
+ML0_OL0_shared_VK_violin_combined.png
+ML0_OL0_shared_VK_violin_combined.tiff
+```
+
+建议论文排版或 Adobe Illustrator 后期编辑时优先使用：
+
+```text
+ML0_OL0_shared_VK_violin_combined.pdf
+```
+
+### R 依赖
+
+```r
+install.packages(c("ggplot2", "patchwork", "ragg", "ggrastr"))
+```
