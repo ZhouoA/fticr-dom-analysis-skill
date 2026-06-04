@@ -467,3 +467,62 @@ OL_upset_nature_matched_intersections.csv
 ```
 
 其中 PDF 为 Illustrator 友好版，PNG 为 600 dpi；CSV 文件用于核查 set size 和 intersection size，也可用于整理投稿 source data。
+## 5. VK 边际分布图：`$VK-marginal distribution`
+
+用途：从 precursor、product、resistant 三类分子式文件中，绘制论文风格的 “Van Krevelen + marginal distribution” 图。适合生成类似 Fig. S8 的 2 × 3 总图。
+
+最终图预览：
+
+![VK marginal distribution final example](skills/vk-marginal-distribution/assets/Fig_S8_VK_marginal_combined_final_v3.png)
+
+输入文件夹通常包含 6 个 Excel 文件：
+
+```text
+final_classification_for_analysis_ML0 vs. 0.5.xlsx
+final_classification_for_analysis_ML0 vs. 0.8.xlsx
+final_classification_for_analysis_ML0 vs. 1.xlsx
+final_classification_for_analysis_OL0 vs. 0.5.xlsx
+final_classification_for_analysis_OL0 vs. 0.8.xlsx
+final_classification_for_analysis_OL0 vs. 1.xlsx
+```
+
+每个文件需要包含：
+
+```text
+final_precursor
+final_product
+final_resistant
+```
+
+每个 sheet 至少包含：
+
+```text
+O/C
+H/C
+```
+
+典型调用：
+
+```text
+调用 VK-marginal distribution，读取这个文件夹，帮我画 Fig. S8 这种 VK 边际分布图
+```
+
+命令行示例：
+
+```bash
+Rscript skills/vk-marginal-distribution/scripts/vk_marginal_distribution.R \
+  --input_dir 输入文件夹 \
+  --output_dir 输出文件夹 \
+  --prefix Fig_S8
+```
+
+输出文件包括：
+
+```text
+Fig_S8_VK_marginal_combined.pdf
+Fig_S8_VK_marginal_combined.png
+Fig_S8_stage_counts.csv
+Fig_S8_caption.txt
+```
+
+其中 PDF 为 Illustrator 友好版，PNG 为 600 dpi。

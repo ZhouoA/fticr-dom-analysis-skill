@@ -1,0 +1,4 @@
+interface:
+  display_name: "VK-marginal distribution"
+  short_description: "Draw Nature-style VK scatter plots with marginal O/C and H/C density distributions."
+  default_prompt: "Use $VK-marginal distribution to read precursor/product/resistant files and draw the final 2 x 3 VK marginal distribution figure."
