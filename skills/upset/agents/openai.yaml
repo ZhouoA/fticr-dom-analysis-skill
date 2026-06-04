@@ -1,0 +1,4 @@
+interface:
+  display_name: "upset"
+  short_description: "Draw Nature-style UpSet diagrams for ML/OL stable DOM formula sets."
+  default_prompt: "Use $upset to read stable formula files and draw Nature-style ML and OL UpSet diagrams with matched dose colors."

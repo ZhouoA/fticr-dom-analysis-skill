@@ -381,3 +381,89 @@ ML0_OL0_shared_VK_violin_combined.pdf
 ```r
 install.packages(c("ggplot2", "patchwork", "ragg", "ggrastr"))
 ```
+## 4. UpSet 交集图：`$upset`
+
+用途：从已经完成去重和三平行稳定筛选的 FT-ICR MS DOM 分子式文件中，分别绘制 ML 和 OL 在不同预臭氧剂量下的 UpSet diagram。
+
+这个 skill 适合整理类似 Fig. S7 的图：
+
+```text
+左侧：每个剂量组的 formula count
+右上：exclusive intersection size，灰色柱状图
+右下：combination matrix，行背景、圆点和连接线与对应剂量颜色匹配
+```
+
+默认读取 8 个条件文件：
+
+```text
+ML-0.csv
+ML-0.5.csv
+ML-0.8.csv
+ML-1.csv
+OL-0.csv
+OL-0.5.csv
+OL-0.8.csv
+OL-1.csv
+```
+
+也支持 `.xlsx` 和 `.xls`。文件中需要有分子式列，例如 `Formula`、`Molecular Formula`、`molecular_formula` 或 `Assigned formula`。
+
+### upset 的颜色规则
+
+ML：
+
+```text
+1   = #E5086A
+0.5 = #D35F27
+0.8 = #604E98
+0   = #046586
+```
+
+OL：
+
+```text
+1   = #E41A1C
+0.8 = #6BAF45
+0   = #F07F7F
+0.5 = #F5A623
+```
+
+右侧 intersection bar 统一使用灰色；底部 matrix 的背景色降低饱和度，圆点和连接线与对应剂量颜色保持一致。
+
+### 典型调用
+
+在 Codex 中可以直接说：
+
+```text
+调用 upset，读取这个文件夹，帮我画 ML 和 OL 的 UpSet 图
+```
+
+命令行示例：
+
+```bash
+Rscript skills/upset/scripts/make_upset_nature_matched.R \
+  --input_dir 输入文件夹 \
+  --output_dir 输出文件夹
+```
+
+Windows PowerShell 示例：
+
+```powershell
+Rscript skills/upset/scripts/make_upset_nature_matched.R `
+  --input_dir "C:\Users\周周\Desktop\NCFT\02DOM数据处理\01汇总筛选3" `
+  --output_dir "C:\Users\周周\Desktop\NCFT\02DOM数据处理\01汇总筛选3\UpSet_nature_matched"
+```
+
+### upset 输出文件
+
+```text
+ML_upset_nature_matched.pdf
+ML_upset_nature_matched.png
+OL_upset_nature_matched.pdf
+OL_upset_nature_matched.png
+upset_nature_matched_set_size_audit.csv
+ML_upset_nature_matched_intersections.csv
+OL_upset_nature_matched_intersections.csv
+```
+
+其中 PDF 为 Illustrator 友好版，PNG 为 600 dpi；CSV 文件用于核查 set size 和 intersection size，也可用于整理投稿 source data。
