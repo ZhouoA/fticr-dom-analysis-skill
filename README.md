@@ -1,10 +1,11 @@
 # FT-ICR DOM Analysis Skills
 
-这个仓库保存用于 FT-ICR MS / DOM 数据处理的 Codex skills。当前包含三个主要能力：
+这个仓库保存用于 FT-ICR MS / DOM 数据处理的 Codex skills。当前包含多个主要能力：
 
 1. `$fticr-dom-analysis`：给分子式表格补充分子性质、VK 分类、PMD/Gephi 分析文件。
 2. `$vk-figure`：从含 `O/C`、`H/C`、`RI` 的样品 CSV 文件夹生成论文级 Van Krevelen RI 合并图。
 3. `$group-vk-figure`：从 Group/VK 分类汇总表生成并排的堆叠柱状图，统计平行样品平均 RI (%)。
+4. `$PMD-Radar plots`：从 PMD/linkage 的 precursor-product reaction edge 表生成带外圈反应分类条带的 Nature 风格环形雷达图。
 
 ## 1. 分子性质分析：`$fticr-dom-analysis`
 
@@ -526,3 +527,81 @@ Fig_S8_caption.txt
 ```
 
 其中 PDF 为 Illustrator 友好版，PNG 为 600 dpi。
+
+## 6. PMD 反应雷达图：`$PMD-Radar plots`
+
+用途：从 PMD/linkage 分析得到的 precursor-product reaction edge 表中，绘制 Nature 风格的环形反应雷达图。该图适合比较 ML/OL 在 0.5、0.8、1.0 g O3·(g DOC)–1 下不同反应路径的匹配数量，并在最外圈用彩色条带标注反应大类。
+
+最终图预览：
+
+![PMD radar ML final example](skills/pmd-radar-plots/assets/reaction_polar_ring_ML_example.png)
+
+![PMD radar OL final example](skills/pmd-radar-plots/assets/reaction_polar_ring_OL_example.png)
+
+输入文件通常为：
+
+```text
+reaction_results/all_network_edge.csv
+```
+
+至少需要包含以下列：
+
+```text
+Leachate
+Dose
+Reaction
+```
+
+典型调用：
+
+```text
+调用 PMD-Radar plots，读取 all_network_edge.csv，帮我画 ML 和 OL 的 PMD 反应雷达图
+```
+
+命令行示例：
+
+```bash
+Rscript skills/pmd-radar-plots/scripts/pmd_radar_plots.R \
+  --input_edges reaction_results/all_network_edge.csv \
+  --output_dir reaction_results/reaction_polar_figures \
+  --prefix reaction_polar_ring
+```
+
+Windows PowerShell 示例：
+
+```powershell
+Rscript skills/pmd-radar-plots/scripts/pmd_radar_plots.R `
+  --input_edges "C:\Users\周周\Desktop\NCFT\02DOM数据处理\pre-pro\reaction_results\all_network_edge.csv" `
+  --output_dir "C:\Users\周周\Desktop\NCFT\02DOM数据处理\pre-pro\reaction_results\reaction_polar_figures" `
+  --prefix reaction_polar_ring
+```
+
+### PMD-Radar plots 的图形结构
+
+```text
+内圈：0.5、0.8、1.0 三个剂量的 reaction Count 雷达曲线
+中圈：Formula difference 标签，例如 –C2H4、+H2O、–SO2
+外圈：反应大类彩色条带
+最外层：Reaction category 文字，例如 Oxygenation、Dealkylation
+```
+
+绘图规则：
+
+- 半径使用平方根缩放，但径向刻度显示原始 Count，低值区更容易读。
+- 三个剂量在同一 reaction 位置做轻微角度错位，减少圆点重叠。
+- Formula difference 中的负号使用 en dash `–`，不是普通连字符 `-`。
+- 彩色条带在最外圈，不压住 Formula difference。
+- `a ML`、`b OL` 放在图外左上角，不放在圆心。
+- 图例为放大的线 + 圆点样式，便于投稿图阅读。
+
+### PMD-Radar plots 输出文件
+
+```text
+reaction_polar_ring_ML.pdf/svg/tiff/png
+reaction_polar_ring_OL.pdf/svg/tiff/png
+reaction_polar_ring_ML_OL_combined.pdf/svg/tiff/png
+source_data_reaction_polar_ring.csv
+reaction_category_mapping.csv
+```
+
+其中 PDF 和 SVG 适合 Adobe Illustrator 后期微调，TIFF/PNG 用于投稿预览和快速检查。

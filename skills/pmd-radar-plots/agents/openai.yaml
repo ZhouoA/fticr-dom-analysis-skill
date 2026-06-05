@@ -1,0 +1,4 @@
+interface:
+  display_name: "PMD-Radar plots"
+  short_description: "Draw Nature-style circular PMD reaction radar plots with outer reaction-category rings."
+  default_prompt: "Use $PMD-Radar plots to read all_network_edge.csv and draw ML/OL reaction polar radar plots with outer category rings."
