@@ -6,6 +6,7 @@
 2. `$vk-figure`：从含 `O/C`、`H/C`、`RI` 的样品 CSV 文件夹生成论文级 Van Krevelen RI 合并图。
 3. `$group-vk-figure`：从 Group/VK 分类汇总表生成并排的堆叠柱状图，统计平行样品平均 RI (%)。
 4. `$PMD-Radar plots`：从 PMD/linkage 的 precursor-product reaction edge 表生成带外圈反应分类条带的 Nature 风格环形雷达图。
+5. `$dbe-o-c-nosc`：生成 `(DBE–O)/C–NOSC` 三分类散点图及 precursor/product 分子状态 RI 堆叠柱状图。
 
 ## 1. 分子性质分析：`$fticr-dom-analysis`
 
@@ -382,6 +383,7 @@ ML0_OL0_shared_VK_violin_combined.pdf
 ```r
 install.packages(c("ggplot2", "patchwork", "ragg", "ggrastr"))
 ```
+
 ## 4. UpSet 交集图：`$upset`
 
 用途：从已经完成去重和三平行稳定筛选的 FT-ICR MS DOM 分子式文件中，分别绘制 ML 和 OL 在不同预臭氧剂量下的 UpSet diagram。
@@ -605,3 +607,87 @@ reaction_category_mapping.csv
 ```
 
 其中 PDF 和 SVG 适合 Adobe Illustrator 后期微调，TIFF/PNG 用于投稿预览和快速检查。
+
+## 7. `(DBE–O)/C-NOSC` 分子状态组合图：`$dbe-o-c-nosc`
+
+用途：读取 ML/OL 在 0.5、0.8 和 1.0 g O₃·(g DOC)⁻¹ 下的 precursor、product 和 resistant 分类工作簿，生成论文级 `(DBE–O)/C–NOSC` 组合图。
+
+自然语言调用：
+
+```text
+调用 (DBE–O)/C-NOSC，读取这个 pre-pro 文件夹，帮我绘制 ML/OL 的 Fig. S12。
+```
+
+Codex 显式调用：
+
+```text
+使用 $dbe-o-c-nosc 读取这个文件夹，生成 (DBE–O)/C-NOSC 散点图、RI 堆叠柱状图和 source data。
+```
+
+> 显示名称为 `(DBE–O)/C-NOSC`；由于 Codex skill 名称只能使用小写字母、数字和连字符，实际显式命令为 `$dbe-o-c-nosc`。
+
+### 输入文件
+
+输入文件夹应包含：
+
+```text
+final_classification_for_analysis_ML0 vs. 0.5.xlsx
+final_classification_for_analysis_ML0 vs. 0.8.xlsx
+final_classification_for_analysis_ML0 vs. 1.xlsx
+final_classification_for_analysis_OL0 vs. 0.5.xlsx
+final_classification_for_analysis_OL0 vs. 0.8.xlsx
+final_classification_for_analysis_OL0 vs. 1.xlsx
+```
+
+每个 Excel 工作簿包含：
+
+```text
+final_precursor
+final_product
+final_resistant
+```
+
+### 命令行运行
+
+```powershell
+Rscript skills/dbe-o-c-nosc/scripts/dbe_o_c_nosc_figure.R `
+  --input_dir "C:\path\to\pre-pro" `
+  --output_dir "C:\path\to\pre-pro" `
+  --prefix "Fig_S12" `
+  --dpi 600
+```
+
+### 图形内容
+
+```text
+a  ML-0.5、ML-0.8、ML-1 的 (DBE–O)/C–NOSC 散点图
+b  OL-0.5、OL-0.8、OL-1 的 (DBE–O)/C–NOSC 散点图
+c  ML/OL precursor 与 product 四类分子状态 RI (%) 堆叠柱状图
+```
+
+四类分子状态：
+
+```text
+Unsaturated and reduced
+Unsaturated and oxidized
+Saturated and reduced
+Saturated and oxidized
+```
+
+输出文件：
+
+```text
+Fig_S12.pdf
+Fig_S12.png
+Fig_S12_source_data.xlsx
+```
+
+最终图示例：
+
+![Final (DBE-O)/C-NOSC example](skills/dbe-o-c-nosc/assets/Fig_S12_example.png)
+
+PDF 示例位于：
+
+```text
+skills/dbe-o-c-nosc/assets/Fig_S12_example.pdf
+```

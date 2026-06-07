@@ -1,0 +1,4 @@
+interface:
+  display_name: "(DBE–O)/C-NOSC"
+  short_description: "绘制 (DBE–O)/C–NOSC 散点图与 RI 堆叠柱状图"
+  default_prompt: "Use $dbe-o-c-nosc to generate the publication-ready (DBE–O)/C-NOSC figure from ML/OL classification workbooks."
