@@ -1,32 +1,24 @@
-﻿---
+---
 name: fticr-dom-analysis
-description: 分析 FT-ICR MS / DOM 分子式表格的分子特性。Use this skill when the user wants molecular property analysis for CSV or Excel formula tables, including ΔG0cox, O2-based λ, Van Krevelen category (VK), (DBE-O)/C, multi-sheet Excel handling, and formula-derived table augmentation from element columns or MolForm.
+description: Analyze FT-ICR MS / DOM molecular formula tables, PMD reaction outputs, Gephi network files, and Raw FTICRMS UpSet figures. Use this skill when the user wants formula-table augmentation with Delta G0cox, O2-based lambda, Van Krevelen category (VK), (DBE-O)/C, PMD precursor/product matching summaries, Gephi node/edge exports, or the `upset` command for publication-style YL/OL/ML formula-overlap UpSet plots from FT-ICR MS Excel files.
 ---
 
-# FT-ICR 分子特性分析
+# FT-ICR DOM Analysis
 
 ## Overview
 
-Use this skill for FT-ICR MS / DOM molecular property analysis. It processes molecular formula tables and appends four analysis columns: `ΔG0cox`, `λ`, `VK`, and `(DBE-O)/C`.
+Use this skill for reproducible FT-ICR MS / DOM formula-table analysis and figure-ready source data.
 
-功能包括：
+Supported workflows:
 
-- 读取 `.csv`、`.xlsx`、`.xls` 分子式表格。
-- Excel 不指定 `--sheet` 时自动处理所有工作表，并保留原 sheet 名。
-- 从已有元素列或 `MolForm` 解析 `C`, `H`, `N`, `O`, `S`, `P`, `Cl`, `Br`。
-- 计算 NOSC-derived `ΔG0cox`。
-- 计算 O2-based substrate-explicit model 的 `λ`，含卤素或不适用行留空。
-- 按 Van Krevelen 条件添加 `VK` 分子类别。
-- 计算 `(DBE-O)/C`。
+- Molecular-property augmentation: append `Delta G0cox`, `lambda`, `VK`, and `(DBE-O)/C`.
+- PMD reaction matching and summary tables.
+- Gephi node and edge exports for DOM molecular networks.
+- `upset`: Raw FTICRMS YL/OL/ML molecular formula overlap UpSet plots.
 
-## Workflow
+## Molecular Property Workflow
 
-1. Locate the input table and choose an output path.
-2. Run `scripts/molecular_property_analysis.py` with the Codex bundled Python when available, because it includes spreadsheet dependencies.
-3. Verify the output keeps all original columns and appends exactly `ΔG0cox`, `λ`, `VK`, and `(DBE-O)/C`.
-4. For Excel workbooks, confirm all expected worksheets are present.
-
-## Command
+Run `scripts/molecular_property_analysis.py` for `.csv`, `.xlsx`, or `.xls` formula tables.
 
 ```bash
 python scripts/molecular_property_analysis.py input.xlsx output.xlsx
@@ -34,76 +26,17 @@ python scripts/molecular_property_analysis.py input.xlsx output.xlsx --sheet She
 python scripts/molecular_property_analysis.py input.csv output.csv
 ```
 
-## PMD Network Workflow
-
-Use `scripts/molecular_PMD_analysis.py` after molecular-property workbooks have
-already been generated. The input directory should contain:
-
-- `network_edge*.csv` files with `Source`, `Target`, and `Reaction` columns.
-- `reaction_delta.csv` with a `reaction` column, used as the reaction order.
-- Matching analysis workbooks named `生物段{tag}_fticr_dom_analysis.xlsx`,
-  where `{tag}` matches the suffix of `network_edge{tag}.csv`.
-
-Command:
-
-```bash
-python scripts/molecular_PMD_analysis.py processed
-```
-
-Outputs:
-
-- `source_reaction_matches/source_reaction_{tag}_matched_analysis.xlsx`
-- `target_reaction_matches/target_reaction_{tag}_matched_analysis.xlsx`
-- `source_reaction_matches/source_reaction_VK_Group_statistics.xlsx`
-- `target_reaction_matches/target_reaction_VK_Group_statistics.xlsx`
-- `source_reaction_matches/source_reaction_VK_Group_statistics_percent_of_dataset_sum.xlsx`
-- `target_reaction_matches/target_reaction_VK_Group_statistics_percent_of_dataset_sum.xlsx`
-
-The Source/Target match tables preserve every network edge row in order and do
-not deduplicate formulas. The statistics workbooks include `VK_stats` and
-`Group_stats`, count columns first, RI-sum percentage columns second, per-Dataset
-sum rows, and reaction-group sum rows such as `1-CH_sum`, `1+CHO_sum`,
-`1-CHON_sum`, and `1+CHOS_sum`. `VK_stats` includes `Other`; `Group_stats`
-counts non-`CHO`/`CHON`/`CHONS`/`CHOS` formulas as `Other`. Sum rows are bolded.
-The percent-of-Dataset statistics divide each numeric value by the corresponding
-Dataset sum-row value and multiply by 100.
-
-## Gephi Workflow
-
-Use `scripts/gephi_analysis.py` after PMD matching has produced
-`network_formula_matches/network_unique_molecules_*_matched_analysis.xlsx`.
-The same input directory should also contain `network_edge*.csv`.
-
-Command:
-
-```bash
-python scripts/gephi_analysis.py processed --clean
-```
-
-Outputs are written to `processed/gephi` by default:
-
-- `nodes_{tag}_VK.xlsx`: `ID`, `Label`, `type`, and `color` from `MolForm` and `VK`.
-- `nodes_{tag}_Group.xlsx`: `ID`, `Label`, `type`, and `color` from `MolForm` and `Group`; non-`CHO`/`CHON`/`CHONS`/`CHOS` values become `Others`.
-- `network_edge{tag}_labeled.xlsx`: original `Source`, `Target`, `Reaction` plus `label`, `label2`, and `color` reaction-group columns.
-
-The script applies the Gephi color palettes used in the local workflow for VK,
-Group, and reaction labels.
-
-## Element Handling
+Rules:
 
 - Prefer existing element columns: `C`, `H`, `N`, `O`, `S`, `P`, `Cl`, `Br`.
-- Missing element columns are treated as `0`.
-- If no element columns exist, parse `MolForm` for `C`, `H`, `N`, `O`, `S`, `P`, `Cl`, and `Br`.
+- Treat missing element columns as `0`.
+- If no element columns exist, parse `MolForm`.
+- Use existing `O/C` and `H/C` when present; otherwise compute them from element counts.
+- Leave `Delta G0cox` and `lambda` blank when `C <= 0`.
+- Leave `lambda` blank for halogen-containing formulas because the O2-based substrate-explicit model does not explicitly support halogen products.
+- Calculate `(DBE-O)/C` as `(DBE - O) / C`; leave blank if required values are missing or `C` is zero.
 
-## Thermodynamic Rules
-
-- Rows with `C <= 0` output blank values for `ΔG0cox` and `λ`.
-- Rows containing `Cl` or `Br` still receive `ΔG0cox`, but `λ` is blank because the O2-based SXM model does not explicitly support halogen products.
-- Other thermodynamically inapplicable rows also leave `λ` blank.
-
-## VK Classification
-
-Assign `VK` using the first matching rule below; rows that do not match any rule are `Other`.
+VK classification uses the first matching rule:
 
 ```text
 Lipids:        0 <= O/C < 0.3     and 1.5 <= H/C <= 2.0
@@ -116,17 +49,85 @@ Tannin:        0.67 < O/C <= 1.0  and 0.6 <= H/C < 1.5
 Other:         all unmatched rows
 ```
 
-Use existing `O/C` and `H/C` columns when present; otherwise compute them from element counts.
+## PMD Network Workflow
 
-## Output
+Run `scripts/molecular_PMD_analysis.py` after molecular-property workbooks have been generated.
 
-The output table keeps every original column unchanged and appends only:
+Input directory should contain:
 
-```text
-ΔG0cox
-λ
-VK
-(DBE-O)/C
+- `network_edge*.csv` files with `Source`, `Target`, and `Reaction` columns.
+- `reaction_delta.csv` with a `reaction` column.
+- Matching analysis workbooks named for the local workflow.
+
+Command:
+
+```bash
+python scripts/molecular_PMD_analysis.py processed
 ```
 
-`(DBE-O)/C` is calculated as `(DBE - O) / C`; if required values are missing or `C` is zero, leave it blank.
+Outputs include source/target matched workbooks and VK/Group reaction statistics under:
+
+```text
+source_reaction_matches/
+target_reaction_matches/
+```
+
+## Gephi Workflow
+
+Run `scripts/gephi_analysis.py` after PMD matching has produced network formula matches.
+
+```bash
+python scripts/gephi_analysis.py processed --clean
+```
+
+Outputs are written to `processed/gephi` by default and include:
+
+```text
+nodes_{tag}_VK.xlsx
+nodes_{tag}_Group.xlsx
+network_edge{tag}_labeled.xlsx
+```
+
+## upset Workflow
+
+Use `scripts/upset.R` when the user asks for `upset`, Raw FTICRMS UpSet, formula-overlap UpSet, or a YL/OL/ML molecular formula intersection figure.
+
+Expected input:
+
+- One Excel workbook per sample in `--input_dir`.
+- Each workbook must contain a `Formula` column.
+- Default sample order is `YL,OL,ML`.
+- Default input filenames are `YL.xlsx`, `OL.xlsx`, and `ML.xlsx`.
+
+Command:
+
+```bash
+Rscript scripts/upset.R \
+  --input_dir path/to/FTICRMS/Raw \
+  --output_dir path/to/output \
+  --prefix Raw_FTICRMS_UpSet \
+  --sample_order YL,OL,ML \
+  --width_in 7.2 \
+  --height_in 4.6 \
+  --dpi 600
+```
+
+Outputs:
+
+```text
+Raw_FTICRMS_UpSet.pdf
+Raw_FTICRMS_UpSet.svg
+Raw_FTICRMS_UpSet.png
+Raw_FTICRMS_UpSet.tiff
+Raw_FTICRMS_UpSet_intersection_sizes.csv
+Raw_FTICRMS_UpSet_set_sizes.csv
+Raw_FTICRMS_UpSet_formula_membership.csv
+```
+
+Style invariants:
+
+- Keep the lower matrix panel aligned to the upper barplot coordinate space.
+- Keep `YL/OL/ML` as a separate narrow label column so row labels do not change the matrix coordinate frame.
+- Draw inactive grey points first, then blue connector lines, then active blue points.
+- Use black visible axes and tick marks.
+- Export editable SVG/PDF plus high-resolution PNG/TIFF.

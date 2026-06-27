@@ -1,4 +1,4 @@
-﻿interface:
-  display_name: "FT-ICR 分子特性分析"
-  short_description: "Analyze DOM formulas: ΔG0cox, λ, VK, and (DBE-O)/C."
-  default_prompt: "Use $fticr-dom-analysis to analyze molecular properties in this FT-ICR MS table."
+interface:
+  display_name: "FT-ICR DOM Analysis"
+  short_description: "Analyze DOM formulas, PMD networks, Gephi exports, and Raw FTICRMS UpSet figures."
+  default_prompt: "Use $fticr-dom-analysis to analyze FT-ICR MS molecular formulas, PMD reaction outputs, Gephi files, or run the upset workflow for formula overlap."
