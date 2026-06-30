@@ -1,0 +1,3 @@
+display_name: Violin plot图
+short_description: 绘制 YL/ML/OL FT-ICR MS 分子性质小提琴图，包含 Wilcoxon-BH 显著性字母。
+default_prompt: 调用 Violin plot图，读取我的 FT-ICR MS 分子式 source data，绘制 YL、ML、OL 的 MW、DBE、O/C、H/C、N/C、S/C、AImod 和 NOSC 小提琴图，并输出 PDF/SVG/PNG/TIFF、source data 和统计表。
