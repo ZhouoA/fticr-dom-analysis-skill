@@ -1,6 +1,6 @@
 ---
 name: fticr-dom-analysis
-description: Analyze FT-ICR MS / DOM molecular formula tables, PMD reaction outputs, Gephi network files, Raw FTICRMS UpSet figures, and shared-formula Raw VK figures. Use this skill when the user wants formula-table augmentation with Delta G0cox, O2-based lambda, Van Krevelen category (VK), (DBE-O)/C, PMD precursor/product matching summaries, Gephi node/edge exports, the `upset` command, or the `raw-VK图` command for a publication-style Van Krevelen diagram of molecular formulas shared by YL/OL/ML.
+description: Analyze FT-ICR MS / DOM molecular formula tables, PMD reaction outputs, Gephi network files, Raw FTICRMS UpSet figures, and shared-formula Raw VK figures. Use this skill when the user wants formula-table augmentation with Delta G0cox, O2-based lambda, Van Krevelen category (VK), (DBE-O)/C, PMD precursor/product matching summaries, Gephi node/edge exports, the `upset` command, the `raw-VK图` command for a publication-style Van Krevelen diagram of molecular formulas shared by YL/OL/ML, or the `Violin plot图` command for Nature-style YL/ML/OL molecular-property violin plots with Wilcoxon-BH significance letters.
 ---
 
 # FT-ICR DOM Analysis
@@ -16,6 +16,7 @@ Supported workflows:
 - Gephi node and edge exports for DOM molecular networks.
 - `upset`: Raw FTICRMS YL/OL/ML molecular formula overlap UpSet plots.
 - `raw-VK图`: Van Krevelen plots of molecular formulas shared by raw YL/OL/ML.
+- `Violin plot图`: Nature-style molecular-property violin plots for MW, DBE, O/C, H/C, N/C, S/C, AImod, and NOSC across YL/ML/OL.
 
 ## Molecular Property Workflow
 
@@ -152,9 +153,9 @@ editable SVG/PDF plus PNG/TIFF. Read `skills/raw-vk-figure/SKILL.md` for the fix
 boundary, point, annotation, and spacing rules. Use
 `skills/raw-vk-figure/assets/Raw_Shared_VK.svg` as the exact visual reference.
 
-## Violin plot鍥?Workflow
+## Violin plot图 Workflow
 
-Use `skills/violin-plot/scripts/violin_plot_workflow.R` when the user asks for `Violin plot鍥綻, molecular-property violin plots, or the current YL/ML/OL Raw_Molecular_Properties_Violin figure.
+Use `skills/violin-plot/scripts/violin_plot_workflow.R` when the user asks for `Violin plot图`, molecular-property violin plots, or the current YL/ML/OL Raw_Molecular_Properties_Violin figure.
 
 ```bash
 Rscript skills/violin-plot/scripts/violin_plot_workflow.R \
