@@ -1,0 +1,4 @@
+interface:
+  display_name: "raw-VK图"
+  short_description: "绘制 YL、OL、ML 三组共有分子式的 Raw Van Krevelen 图。"
+  default_prompt: "使用 $raw-vk-figure 读取 Raw FT-ICR MS 数据，绘制三组共有分子式的可编辑 Raw VK 图。"

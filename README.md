@@ -795,3 +795,118 @@ install.packages(c(
   "svglite"
 ))
 ```
+
+## 9. 三种原始渗滤液共有分子式 Van Krevelen 图：`raw-VK图`
+
+用途：读取 YL、OL 和 ML 三组 Raw FT-ICR MS 分子式表格，提取三组样品共同检出的分子式，并绘制共有分子式的 Van Krevelen 图。该命令用于复现当前确认版本的 `Raw_Shared_VK` 风格，包括紫色散点、13 条灰色短虚线分类边界、`Shared` 标签、右下角动态 `n=` 数值，以及横纵坐标一致的数字与标题间距。
+
+典型调用方式：
+
+```text
+调用 raw-VK图，读取 FTICRMS/Raw 文件夹中的 YL.xlsx、OL.xlsx 和 ML.xlsx，
+绘制三组共有分子式的 Van Krevelen 图，并输出可编辑 SVG/PDF、PNG/TIFF 和 source data。
+```
+
+技能与脚本位置：
+
+```text
+skills/raw-vk-figure/SKILL.md
+skills/raw-vk-figure/scripts/raw_vk_figure.R
+```
+
+### 输入文件
+
+直接读取 Raw 工作簿时，文件夹结构为：
+
+```text
+输入文件夹/
+  YL.xlsx
+  OL.xlsx
+  ML.xlsx
+```
+
+每个工作簿必须包含 `Formula`，并同时包含以下任一组字段：
+
+```text
+O/C、H/C
+```
+
+或：
+
+```text
+C、H、O
+```
+
+也可以直接使用已经整理好的 CSV，其必需字段为：
+
+```text
+Formula
+O_C
+H_C
+```
+
+### 命令行示例
+
+从三个 Raw Excel 工作簿自动提取共有分子式：
+
+```powershell
+& "C:\Program Files\R\R-4.5.2\bin\Rscript.exe" `
+  skills\raw-vk-figure\scripts\raw_vk_figure.R `
+  --input_dir "C:\path\to\FTICRMS\Raw" `
+  --output_dir "C:\path\to\output" `
+  --prefix Raw_Shared_VK `
+  --sample_order YL,OL,ML `
+  --width_in 3.60 `
+  --height_in 2.25 `
+  --dpi 600
+```
+
+从已经整理好的 source data 复现：
+
+```powershell
+& "C:\Program Files\R\R-4.5.2\bin\Rscript.exe" `
+  skills\raw-vk-figure\scripts\raw_vk_figure.R `
+  --input_csv "C:\path\to\Raw_Shared_VK_source_data.csv" `
+  --output_dir "C:\path\to\output" `
+  --prefix Raw_Shared_VK
+```
+
+### 固定图形规范
+
+- 坐标范围固定为 `O/C = -0.02–1.22`、`H/C = -0.05–2.55`。
+- O/C 刻度间隔为 `0.3`，H/C 刻度间隔为 `0.5`。
+- 13 条分子分类边界使用 `#737373`、线宽 `0.4` 和短虚线 `2 2`。
+- 共有分子式散点使用紫色 `#7A6AA8`、透明度 `0.8`。
+- x 轴数字到坐标轴的视觉距离与 y 轴保持一致。
+- `O/C` 到刻度数字的距离与 `H/C` 到刻度数字的距离保持一致。
+- `Shared` 位于左上角，`n=` 位于右下角并根据共有分子式数量自动更新。
+- 不改变数据、坐标范围、分类边界位置和图中文字内容。
+
+### 输出文件
+
+```text
+Raw_Shared_VK.svg
+Raw_Shared_VK.pdf
+Raw_Shared_VK.png
+Raw_Shared_VK.tiff
+Raw_Shared_VK_source_data.csv
+Raw_Shared_VK_plot_QA.csv
+```
+
+SVG 中的文字、坐标轴、虚线和散点均保持可编辑。
+
+### 最终 SVG 示例
+
+![Raw shared Van Krevelen SVG example](skills/raw-vk-figure/assets/Raw_Shared_VK.svg)
+
+SVG 原文件位置：
+
+```text
+skills/raw-vk-figure/assets/Raw_Shared_VK.svg
+```
+
+R 依赖：
+
+```r
+install.packages("readxl")
+```

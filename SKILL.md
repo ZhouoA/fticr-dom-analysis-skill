@@ -1,6 +1,6 @@
 ---
 name: fticr-dom-analysis
-description: Analyze FT-ICR MS / DOM molecular formula tables, PMD reaction outputs, Gephi network files, and Raw FTICRMS UpSet figures. Use this skill when the user wants formula-table augmentation with Delta G0cox, O2-based lambda, Van Krevelen category (VK), (DBE-O)/C, PMD precursor/product matching summaries, Gephi node/edge exports, or the `upset` command for publication-style YL/OL/ML formula-overlap UpSet plots from FT-ICR MS Excel files.
+description: Analyze FT-ICR MS / DOM molecular formula tables, PMD reaction outputs, Gephi network files, Raw FTICRMS UpSet figures, and shared-formula Raw VK figures. Use this skill when the user wants formula-table augmentation with Delta G0cox, O2-based lambda, Van Krevelen category (VK), (DBE-O)/C, PMD precursor/product matching summaries, Gephi node/edge exports, the `upset` command, or the `raw-VK图` command for a publication-style Van Krevelen diagram of molecular formulas shared by YL/OL/ML.
 ---
 
 # FT-ICR DOM Analysis
@@ -15,6 +15,7 @@ Supported workflows:
 - PMD reaction matching and summary tables.
 - Gephi node and edge exports for DOM molecular networks.
 - `upset`: Raw FTICRMS YL/OL/ML molecular formula overlap UpSet plots.
+- `raw-VK图`: Van Krevelen plots of molecular formulas shared by raw YL/OL/ML.
 
 ## Molecular Property Workflow
 
@@ -131,3 +132,22 @@ Style invariants:
 - Draw inactive grey points first, then blue connector lines, then active blue points.
 - Use black visible axes and tick marks.
 - Export editable SVG/PDF plus high-resolution PNG/TIFF.
+
+## raw-VK图 Workflow
+
+Use `skills/raw-vk-figure/scripts/raw_vk_figure.R` when the user asks for
+`raw-VK图`, Raw shared VK, or the Van Krevelen distribution of formulas shared by
+YL, OL, and ML.
+
+```bash
+Rscript skills/raw-vk-figure/scripts/raw_vk_figure.R \
+  --input_dir path/to/FTICRMS/Raw \
+  --output_dir path/to/output \
+  --prefix Raw_Shared_VK \
+  --sample_order YL,OL,ML
+```
+
+The script identifies the three-way formula intersection, writes source data, and exports
+editable SVG/PDF plus PNG/TIFF. Read `skills/raw-vk-figure/SKILL.md` for the fixed axis,
+boundary, point, annotation, and spacing rules. Use
+`skills/raw-vk-figure/assets/Raw_Shared_VK.svg` as the exact visual reference.
