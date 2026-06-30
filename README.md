@@ -910,14 +910,18 @@ R 依赖：
 ```r
 install.packages("readxl")
 ```
-## 10. `Violin plot鍥綻锛歒L/ML/OL 鍒嗗瓙鎬ц川灏忔彁鐞村浘
 
-鐢ㄩ€旓細浠?Raw FT-ICR MS 鍒嗗瓙寮?source data 涓粯鍒?YL銆丮L 鍜?OL 涓夌粍 DOM 鍒嗗瓙鎬ц川鍒嗗竷鐨勫皬鎻愮惔鍥俱€傚綋鍓嶇増鏈鐜?`Raw_Molecular_Properties_Violin` 鍥撅紝鍖呭惈 `MW`銆乣DBE`銆乣O/C`銆乣H/C`銆乣N/C`銆乣S/C`銆乣AImod` 鍜?`NOSC` 鍏釜闈㈡澘锛屽苟鍦ㄦ瘡涓皬鎻愮惔涓婃柟鐢ㄥ瓧姣嶆爣璁?Wilcoxon rank-sum test + Benjamini-Hochberg FDR 鏍℃鍚庣殑鏄捐憲鎬у垎缁勩€?
-鍏稿瀷璋冪敤锛?
+## 10. `Violin plot图`：YL/ML/OL 分子性质小提琴图
+
+用途：从 Raw FT-ICR MS 分子式 source data 中绘制 YL、ML 和 OL 三组 DOM 分子性质分布的小提琴图。当前版本复现 `Raw_Molecular_Properties_Violin` 图，包含 `MW`、`DBE`、`O/C`、`H/C`、`N/C`、`S/C`、`AImod` 和 `NOSC` 八个面板，并在每个小提琴上方用字母标记 Wilcoxon rank-sum test + Benjamini-Hochberg FDR 校正后的显著性分组。
+
+典型调用：
+
 ```text
-璋冪敤 Violin plot鍥撅紝璇诲彇杩欎釜 FT-ICR MS source data锛岀粯鍒?YL銆丮L銆丱L 鐨勫垎瀛愭€ц川灏忔彁鐞村浘锛屽苟杈撳嚭 PDF/SVG/PNG/TIFF銆乻ource data 鍜岀粺璁¤〃銆?```
+调用 Violin plot图，读取这个 FT-ICR MS source data，绘制 YL、ML、OL 的分子性质小提琴图，并输出 PDF/SVG/PNG/TIFF、source data 和统计表。
+```
 
-鍛戒护琛岀ず渚嬶細
+命令行示例：
 
 ```bash
 Rscript skills/violin-plot/scripts/violin_plot_workflow.R \
@@ -930,7 +934,8 @@ Rscript skills/violin-plot/scripts/violin_plot_workflow.R \
   --dpi 600
 ```
 
-Windows PowerShell 绀轰緥锛?
+Windows PowerShell 示例：
+
 ```powershell
 & "C:\Program Files\R\R-4.5.2\bin\R.exe" --vanilla --slave `
   -f "skills\violin-plot\scripts\violin_plot_workflow.R" --args `
@@ -943,15 +948,24 @@ Windows PowerShell 绀轰緥锛?
   --dpi 600
 ```
 
-杈撳叆琛ㄨ姹傝嚦灏戝寘鍚細
+输入表要求至少包含：
 
 ```text
 sample_id, Formula, C, H, O, N, S, Mass, RI, DBE, O_C, H_C, AImod, NOSC
 ```
 
-鍥哄畾鍥惧舰瑙勫垯锛?
-- 妯潗鏍囬『搴忓浐瀹氫负 `YL, ML, OL`銆?- 棰滆壊鍥哄畾涓?`YL #26A69A`銆乣ML #5E8EC8`銆乣OL #E87878`銆?- 闈㈡澘椤哄簭涓?`MW, DBE, O/C, H/C, N/C, S/C, AImod, NOSC`锛宲anel label 涓?`c-j`銆?- 灏忔彁鐞翠负鍗婇€忔槑濉厖锛岀绾夸负鐧借壊绐勭浣擄紝鐧界偣琛ㄧず绠楁湳鍧囧€笺€?- 椤堕儴瀛楁瘝涓?compact significance letters锛涘叡浜悓涓€瀛楁瘝琛ㄧず BH 鏍℃鍚庡樊寮備笉鏄捐憲銆?- `RI` 鍔犳潈鍧囧€间笉鏀惧湪鍥鹃《绔紝浣嗕細杈撳嚭鍒?summary 琛ㄤ腑銆?- 杈撳嚭 SVG/PDF 涓哄彲缂栬緫鐗堟湰锛孭NG/TIFF 涓?600 dpi 棰勮鎴栨姇绋挎鏌ョ増鏈€?
-涓昏杈撳嚭鏂囦欢锛?
+固定图形规则：
+
+- 横坐标顺序固定为 `YL, ML, OL`。
+- 颜色固定为 `YL #26A69A`、`ML #5E8EC8`、`OL #E87878`。
+- 面板顺序为 `MW, DBE, O/C, H/C, N/C, S/C, AImod, NOSC`，panel label 为 `c-j`。
+- 小提琴为半透明填充，箱线为白色窄箱体，白点表示算术均值。
+- 顶部字母为 compact significance letters；共享同一字母表示 BH 校正后差异不显著。
+- `RI` 加权均值不放在图顶端，但会输出到 summary 表中。
+- 输出 SVG/PDF 为可编辑版本，PNG/TIFF 为 600 dpi 预览或投稿检查版本。
+
+主要输出文件：
+
 ```text
 Raw_Molecular_Properties_Violin.pdf
 Raw_Molecular_Properties_Violin.svg
@@ -965,10 +979,12 @@ Raw_Molecular_Properties_Violin_QA.csv
 Raw_Molecular_Properties_Violin_caption.txt
 ```
 
-鏈€缁堝浘绀轰緥锛?
+最终图示例：
+
 ![Raw Molecular Properties Violin example](skills/violin-plot/assets/Raw_Molecular_Properties_Violin.png)
 
-PDF/SVG 绀轰緥浣嶇疆锛?
+PDF/SVG 示例位置：
+
 ```text
 skills/violin-plot/assets/Raw_Molecular_Properties_Violin.pdf
 skills/violin-plot/assets/Raw_Molecular_Properties_Violin.svg
