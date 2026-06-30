@@ -151,3 +151,20 @@ The script identifies the three-way formula intersection, writes source data, an
 editable SVG/PDF plus PNG/TIFF. Read `skills/raw-vk-figure/SKILL.md` for the fixed axis,
 boundary, point, annotation, and spacing rules. Use
 `skills/raw-vk-figure/assets/Raw_Shared_VK.svg` as the exact visual reference.
+
+## Violin plot鍥?Workflow
+
+Use `skills/violin-plot/scripts/violin_plot_workflow.R` when the user asks for `Violin plot鍥綻, molecular-property violin plots, or the current YL/ML/OL Raw_Molecular_Properties_Violin figure.
+
+```bash
+Rscript skills/violin-plot/scripts/violin_plot_workflow.R \
+  --input_csv path/to/FigS5a_VK_points.csv \
+  --figure_dir path/to/output/figures \
+  --table_dir path/to/output/tables \
+  --prefix Raw_Molecular_Properties_Violin \
+  --width_mm 183 \
+  --height_mm 100 \
+  --dpi 600
+```
+
+The script generates a 2 x 4 Nature-style violin figure for `MW`, `DBE`, `O/C`, `H/C`, `N/C`, `S/C`, `AImod`, and `NOSC` across `YL`, `ML`, and `OL`. It exports editable SVG/PDF, high-resolution PNG/TIFF, source data, RI-weighted summary values, compact significance letters, Wilcoxon-BH statistics, QA, and caption text. Read `skills/violin-plot/SKILL.md` for the fixed colors, axis presets, significance-letter convention, and input schema. Use `skills/violin-plot/assets/Raw_Molecular_Properties_Violin.svg` and `.png` as the exact visual reference.
