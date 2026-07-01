@@ -1,6 +1,6 @@
 ---
 name: fticr-dom-analysis
-description: Analyze FT-ICR MS / DOM molecular formula tables, PMD reaction outputs, Gephi network files, Raw FTICRMS UpSet figures, and shared-formula Raw VK figures. Use this skill when the user wants formula-table augmentation with Delta G0cox, O2-based lambda, Van Krevelen category (VK), (DBE-O)/C, PMD precursor/product matching summaries, Gephi node/edge exports, the `upset` command, the `raw-VK图` command for a publication-style Van Krevelen diagram of molecular formulas shared by YL/OL/ML, or the `Violin plot图` command for Nature-style YL/ML/OL molecular-property violin plots with Wilcoxon-BH significance letters.
+description: Analyze FT-ICR MS / DOM molecular formula tables, PMD reaction outputs, Gephi network files, and publication figures. Use when the user requests formula-property augmentation, PMD/Gephi outputs, `upset`, `raw-VK图`, `Violin plot图`, or `U-S-V图` for the combined UpSet, shared-formula Van Krevelen, and molecular-property violin workflow with editable SVG/PDF.
 ---
 
 # FT-ICR DOM Analysis
@@ -169,3 +169,15 @@ Rscript skills/violin-plot/scripts/violin_plot_workflow.R \
 ```
 
 The script generates a 2 x 4 Nature-style violin figure for `MW`, `DBE`, `O/C`, `H/C`, `N/C`, `S/C`, `AImod`, and `NOSC` across `YL`, `ML`, and `OL`. It exports editable SVG/PDF, high-resolution PNG/TIFF, source data, RI-weighted summary values, compact significance letters, Wilcoxon-BH statistics, QA, and caption text. Read `skills/violin-plot/SKILL.md` for the fixed colors, axis presets, significance-letter convention, and input schema. Use `skills/violin-plot/assets/Raw_Molecular_Properties_Violin.svg` and `.png` as the exact visual reference.
+
+## U-S-V图 Workflow
+
+Use `skills/u-s-v-figure/scripts/prepare_usv_inputs.py` followed by
+`skills/u-s-v-figure/scripts/u_s_v_figure_workflow.R` when the user asks for
+`U-S-V图`, an UpSet-Shared VK-Violin composite, or the confirmed
+`FigS6_reproduced` layout.
+
+The workflow reads three FT-ICR MS datasets, recalculates formula intersections and
+shared formulas, runs 24 pairwise Wilcoxon comparisons with BH-FDR correction, and
+exports editable SVG/PDF, 600 dpi PNG/TIFF, source data, statistics, QA, and caption.
+Read `skills/u-s-v-figure/SKILL.md` for the commands and fixed visual contract.
