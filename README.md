@@ -989,3 +989,95 @@ PDF/SVG 示例位置：
 skills/violin-plot/assets/Raw_Molecular_Properties_Violin.pdf
 skills/violin-plot/assets/Raw_Molecular_Properties_Violin.svg
 ```
+
+## 11. `U-S-V图`：UpSet、共有 VK 与分子性质小提琴组合图
+
+用途：读取三组 FT-ICR MS 分子式数据，一次生成与当前确认版
+`FigS6_reproduced` 相同结构的组合图：
+
+- `a`：三组分子式交集 UpSet 图；
+- `b`：三组共有分子式的 Van Krevelen 图；
+- `c-j`：MW、DBE、O/C、H/C、N/C、S/C、AImod 和 NOSC 小提琴图。
+
+典型调用：
+
+```text
+调用 U-S-V图，读取 FTICRMS/Raw 中的 YL、ML、OL 数据，
+按当前确认版式生成可编辑 SVG/PDF、PNG/TIFF、source data 和统计表。
+```
+
+### 第一步：将三个 Excel 工作簿转换为绘图 CSV
+
+```powershell
+python skills\u-s-v-figure\scripts\prepare_usv_inputs.py `
+  --input_dir "C:\path\to\FTICRMS\Raw" `
+  --output_dir "C:\path\to\usv_inputs" `
+  --sample_ids "YL,ML,OL"
+```
+
+输入目录默认包含：
+
+```text
+YL.xlsx
+ML.xlsx
+OL.xlsx
+```
+
+### 第二步：生成 U-S-V 组合图
+
+```powershell
+& "C:\Program Files\R\R-4.5.2\bin\Rscript.exe" `
+  skills\u-s-v-figure\scripts\u_s_v_figure_workflow.R `
+  --input_dir "C:\path\to\usv_inputs" `
+  --figure_dir "C:\path\to\output\figures" `
+  --table_dir "C:\path\to\output\tables" `
+  --prefix "FigS6_reproduced" `
+  --sample_order "YL,ML,OL" `
+  --upset_order "YL,OL,ML" `
+  --figure_number "Fig. S6." `
+  --sample_description "young (YL), medium (ML), and old (OL) leachates" `
+  --width_mm 183 `
+  --height_mm 165 `
+  --dpi 600
+```
+
+固定图形规则：
+
+- YL、ML、OL 分别使用低饱和青色 `#26A69A`、蓝色 `#5E8EC8`、红色 `#E87878`；
+- UpSet 下方矩阵与上方柱状图严格共用交集横坐标；
+- 共有 VK 图使用紫色散点与 13 条灰色短虚线分类边界；
+- 小提琴图白色箱体表示四分位区间及中位数，白点表示算术均值；
+- 顶部字母来自双侧 Wilcoxon rank-sum test，并统一进行 BH-FDR 校正；
+- 已确认坐标包括：`c = 250,500,750`，`f = 0,1,2,3`，
+  `g/h = 0.0,0.1,0.2,0.3`；
+- SVG/PDF 为 Adobe Illustrator 可编辑矢量文件，PNG/TIFF 默认 600 dpi。
+
+主要输出：
+
+```text
+FigS6_reproduced.svg
+FigS6_reproduced.pdf
+FigS6_reproduced.png
+FigS6_reproduced.tiff
+FigS6_reproduced_a_intersection_sizes.csv
+FigS6_reproduced_a_set_sizes.csv
+FigS6_reproduced_a_formula_membership.csv
+FigS6_reproduced_b_shared_VK.csv
+FigS6_reproduced_c-j_molecular_properties.csv
+FigS6_reproduced_c-j_summary.csv
+FigS6_reproduced_c-j_significance_letters.csv
+FigS6_reproduced_c-j_Wilcoxon_BH_results.csv
+FigS6_reproduced_QA.csv
+FigS6_reproduced_caption.txt
+```
+
+最终示例图：
+
+![U-S-V figure example](skills/u-s-v-figure/assets/U_S_V_figure_example.png)
+
+可编辑示例文件：
+
+```text
+skills/u-s-v-figure/assets/U_S_V_figure_example.svg
+skills/u-s-v-figure/assets/U_S_V_figure_example.pdf
+```
