@@ -1,0 +1,4 @@
+interface:
+  display_name: "U-S-V图"
+  short_description: "生成 FT-ICR MS 的 UpSet、共有 VK 与小提琴组合图"
+  default_prompt: "调用 U-S-V图，读取三个 FT-ICR MS 数据集，按确认版式输出可编辑 SVG/PDF、PNG/TIFF、source data 和 Wilcoxon-BH 统计表。"
