@@ -1,0 +1,4 @@
+interface:
+  display_name: "Marginal + Group"
+  short_description: "复现 FT-ICR MS 分子命运 VK 边际分布与分类堆叠组合图"
+  default_prompt: "Use $marginal-group to compare three FT-ICR MS sample pairs and reproduce the editable VK marginal plus compound/formula-class composite figure."

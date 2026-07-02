@@ -1081,3 +1081,116 @@ FigS6_reproduced_caption.txt
 skills/u-s-v-figure/assets/U_S_V_figure_example.svg
 skills/u-s-v-figure/assets/U_S_V_figure_example.pdf
 ```
+
+## 12. `marginal+group`：VK 边际分布与分子分类堆叠组合图
+
+用途：对三组 FT-ICR MS 样品进行两两比较，按分子式的存在/缺失关系划分：
+
+- `Removed`：仅在左侧样品中检出；
+- `Produced`：仅在右侧样品中检出；
+- `Shared`：在两个样品中均检出。
+
+该命令一次生成：
+
+- `a`：三组 Van Krevelen 散点图及顶部、右侧边际密度分布；
+- `b`：Removed、Produced、Shared 分子池中 compound classes 的分子式数量占比；
+- `c`：Removed、Produced、Shared 分子池中 formula classes 的分子式数量占比。
+
+典型调用：
+
+```text
+调用 marginal+group，读取 YL/ML/OL 与 YLr/MLr/OLr 六个 FT-ICR MS 数据表，
+按当前确认版式绘制 VK 边际分布与 compound/formula class 堆叠组合图，
+输出 Adobe Illustrator 可编辑 PDF/SVG、600 dpi PNG/TIFF、source data 和 QA 表。
+```
+
+### 前端预处理比较
+
+```powershell
+& "C:\Program Files\R\R-4.5.2\bin\Rscript.exe" `
+  skills\marginal-group\scripts\marginal_group_figure.R `
+  --input_dir "C:\path\to\input" `
+  --output_dir "C:\path\to\output" `
+  --prefix "Pretreatment_VK_Class_Composite" `
+  --sample_order "YL,ML,OL" `
+  --left_files "YL.xlsx,ML.xlsx,OL.xlsx" `
+  --right_files "YLr.csv,MLr.csv,OLr.csv" `
+  --left_ids "YL,ML,OL" `
+  --right_ids "YLr,MLr,OLr"
+```
+
+### A/O 生物处理比较
+
+```powershell
+& "C:\Program Files\R\R-4.5.2\bin\Rscript.exe" `
+  skills\marginal-group\scripts\marginal_group_figure.R `
+  --input_dir "C:\path\to\input" `
+  --output_dir "C:\path\to\output" `
+  --prefix "FigS16_AO_Molecular_Fate" `
+  --sample_order "YL,ML,OL" `
+  --left_files "YLr.csv,MLr.csv,OLr.csv" `
+  --right_files "YLo.csv,MLo.csv,OLo.csv" `
+  --left_ids "YLr,MLr,OLr" `
+  --right_ids "YLo,MLo,OLo"
+```
+
+### 输入要求
+
+六个 CSV/XLSX 表至少包含：
+
+```text
+Formula
+O/C
+H/C
+VK
+Group
+```
+
+### 固定图形规范
+
+- Removed、Produced、Shared 分别使用蓝色 `#4E79A7`、红色 `#E15759`、绿色 `#59A14F`。
+- 分子命运分类和堆叠柱百分比均基于分子式数量，不使用 RI 加权。
+- 每个年龄组内顺序固定为 `Removed, Produced, Shared`。
+- a–c 图坐标轴及刻度线均为黑色，线宽固定为 `0.40`。
+- a 图中的三个图例位于 VK 主图右下方且不越过右侧坐标边界。
+- b/c 图横坐标刻度文字为 `6.4 pt`，图例色块为正方形。
+- 默认整图尺寸为 `9 × 6.6 in`。
+- PDF/SVG 中的文字、散点、密度曲线、坐标轴和柱形均保持可编辑。
+
+### 输出文件
+
+```text
+<prefix>.pdf
+<prefix>.svg
+<prefix>.png
+<prefix>.tiff
+<prefix>_formula_classification.csv
+<prefix>_stage_counts.csv
+<prefix>_pair_QA.csv
+<prefix>_class_contributions_source_data.csv
+<prefix>_class_contributions_QA.csv
+<prefix>_caption.txt
+```
+
+程序会检查：
+
+- `Removed + Shared = 左侧样品总分子式数`；
+- `Produced + Shared = 右侧样品总分子式数`；
+- 每个堆叠柱的分子式数量占比合计为 `100%`。
+
+技能与脚本位置：
+
+```text
+skills/marginal-group/SKILL.md
+skills/marginal-group/scripts/marginal_group_figure.R
+```
+
+最终示例图：
+
+![marginal+group example](skills/marginal-group/assets/Pretreatment_VK_Class_Composite_preview.png)
+
+Adobe Illustrator 可编辑示例：
+
+```text
+skills/marginal-group/assets/Pretreatment_VK_Class_Composite_AI.pdf
+```

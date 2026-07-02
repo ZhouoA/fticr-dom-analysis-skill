@@ -1,6 +1,6 @@
 ---
 name: fticr-dom-analysis
-description: Analyze FT-ICR MS / DOM molecular formula tables, PMD reaction outputs, Gephi network files, and publication figures. Use when the user requests formula-property augmentation, PMD/Gephi outputs, `upset`, `raw-VK图`, `Violin plot图`, or `U-S-V图` for the combined UpSet, shared-formula Van Krevelen, and molecular-property violin workflow with editable SVG/PDF.
+description: Analyze FT-ICR MS / DOM molecular formula tables, PMD reaction outputs, Gephi network files, and publication figures. Use when the user requests formula-property augmentation, PMD/Gephi outputs, `upset`, `raw-VK图`, `Violin plot图`, `U-S-V图`, or `marginal+group` for paired molecular-fate VK marginal plots and compound/formula-class stacked bars with editable SVG/PDF.
 ---
 
 # FT-ICR DOM Analysis
@@ -17,6 +17,7 @@ Supported workflows:
 - `upset`: Raw FTICRMS YL/OL/ML molecular formula overlap UpSet plots.
 - `raw-VK图`: Van Krevelen plots of molecular formulas shared by raw YL/OL/ML.
 - `Violin plot图`: Nature-style molecular-property violin plots for MW, DBE, O/C, H/C, N/C, S/C, AImod, and NOSC across YL/ML/OL.
+- `marginal+group`: three paired Removed/Produced/Shared VK marginal panels plus compound-class and formula-class percentage bars.
 
 ## Molecular Property Workflow
 
@@ -181,3 +182,26 @@ The workflow reads three FT-ICR MS datasets, recalculates formula intersections 
 shared formulas, runs 24 pairwise Wilcoxon comparisons with BH-FDR correction, and
 exports editable SVG/PDF, 600 dpi PNG/TIFF, source data, statistics, QA, and caption.
 Read `skills/u-s-v-figure/SKILL.md` for the commands and fixed visual contract.
+
+## marginal+group Workflow
+
+Use `skills/marginal-group/scripts/marginal_group_figure.R` when the user asks for
+`marginal+group`, paired VK marginal distributions, pretreatment molecular fate,
+or A/O molecular fate with matching compound/formula-class stacked bars.
+
+```bash
+Rscript skills/marginal-group/scripts/marginal_group_figure.R \
+  --input_dir path/to/input \
+  --output_dir path/to/output \
+  --prefix Pretreatment_VK_Class_Composite \
+  --sample_order YL,ML,OL \
+  --left_files YL.xlsx,ML.xlsx,OL.xlsx \
+  --right_files YLr.csv,MLr.csv,OLr.csv \
+  --left_ids YL,ML,OL \
+  --right_ids YLr,MLr,OLr
+```
+
+The workflow classifies formulas by presence/absence, calculates formula-count
+percentages without RI weighting, exports editable PDF/SVG and 600 dpi PNG/TIFF,
+and writes formula classifications, class contributions, pair-balance QA, and
+percentage-sum QA. Read `skills/marginal-group/SKILL.md` for the fixed visual contract.
